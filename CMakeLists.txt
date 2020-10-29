@@ -4,21 +4,17 @@ set(CMAKE_CXX_STANDARD 14)
 
 SET(PROJ_NAME1 "Game")
 project(${PROJ_NAME1})
-file(GLOB GAME ${PROJ_NAME1}/*.cpp ${PROJ_NAME1}/*.h)
-
-
-
 
 file(GLOB ENGINE Engine3D/*.cpp Engine3D/*.c  Engine3D/*.h)
 file(GLOB DISPLAY DisplayGLFW/*.cpp DisplayGLFW/*.h)
 
-include_directories(${PROJECT_SOURCE_DIR}/res/includes ${PROJECT_SOURCE_DIR}/Engine3D
+include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/res/includes ${PROJECT_SOURCE_DIR}/Engine3D
  ${PROJECT_SOURCE_DIR}/DisplayGLFW)
-#add_subdirectory(${PROJECT_SOURCE_DIR}/res)
+
+file(COPY ${PROJECT_SOURCE_DIR}/res DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
 
 add_library(Display ${DISPLAY})
 add_library(Engine ${ENGINE})
 
-add_executable(${PROJ_NAME1} ${GAME})
-target_link_libraries(${PROJ_NAME1} Engine Display ${PROJECT_SOURCE_DIR}/res/libs/glew32s.lib ${PROJECT_SOURCE_DIR}/res/libs/glfw3.lib opengl32.lib)
-
+add_subdirectory(${PROJECT_SOURCE_DIR}/Game)

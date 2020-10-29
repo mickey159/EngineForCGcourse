@@ -11,10 +11,7 @@ Renderer::Renderer()
 	xold = 0;
 	yold = 0;
 	debugMode = false;
-	plane = new Shape(Scene::Plane, Scene::TRIANGLES);
-	texShader = new Shader("../res/shaders/basicShaderTex");
 }
-
 
 Renderer::Renderer(float angle, float relationWH, float near, float far)
 {
@@ -25,36 +22,9 @@ Renderer::Renderer(float angle, float relationWH, float near, float far)
 	yold = 0;
 
 	debugMode = false;
-	plane = new Shape(Scene::Plane, Scene::TRIANGLES);
-	texShader = new Shader("../res/shaders/basicShaderTex");
 }
 
-Renderer::Renderer(const std::string& shaderName)
-{
-	cameras.push_back(new Camera(60.0f, 1.0, 0.1f, 100.0f));
-
-	xold = 0;
-	yold = 0;
-	debugMode = false;
-	plane = new Shape(Scene::Plane, Scene::TRIANGLES);
-	texShader = new Shader(shaderName);
-
-}
-
-Renderer::Renderer(float angle, float relationWH, float near, float far, const std::string& shaderName)
-{
-	glLineWidth(5);
-	cameras.push_back(new Camera(angle, relationWH, near, far));
-
-	xold = 0;
-	yold = 0;
-
-	debugMode = false;
-	plane = new Shape(Scene::Plane, Scene::TRIANGLES);
-	texShader = new Shader(shaderName);
-}
-
-void Renderer::Init(Scene* scene, std::list<int>xViewport, std::list<int>yViewport)
+void Renderer::Init(Scene* scene,  std::list<int>xViewport,  std::list<int>yViewport)
 {
 	scn = scene;
 	MoveCamera(0, zTranslate, 10);
@@ -126,17 +96,7 @@ void Renderer::Draw(int infoIndx)
 		else
 			Clear(1, 1, 1, 1);
 	}
-
-	if (info.flags & is2D)
-	{//draw on plane
-		Update2D(MVP);
-		plane->Draw(texShader, true);
-
-	}
-	else
-	{
-		scn->Draw(info.shaderIndx, MVP, debugMode);
-	}
+	scn->Draw(info.shaderIndx, MVP, info.viewportIndx, debugMode);
 
 }
 
@@ -170,18 +130,7 @@ void Renderer::MouseProccessing(int button)
 	scn->MouseProccessing(button, xrel, yrel);
 }
 
-void Renderer::Update2D(const glm::mat4& MVP)
-{
-	texShader->Bind();
-	texShader->SetUniformMat4f("MVP", MVP);
-	texShader->SetUniformMat4f("Normal", glm::mat4(1));
-	scn->BindMaterial(texShader, materialIndx2D); //what texture to draw to the attachment
-
-
-	//texShader->Unbind();
-}
-
-void Renderer::AddCamera(glm::vec3& pos, float fov, float relationWH, float zNear, float zFar, int infoIndx)
+void Renderer::AddCamera(const glm::vec3& pos, float fov, float relationWH, float zNear, float zFar, int infoIndx)
 {
 	if (infoIndx >= 0 && infoIndx < drawInfo.size())
 		drawInfo[infoIndx]->SetCamera(cameras.size());
@@ -207,28 +156,13 @@ unsigned int Renderer::AddBuffer(int infoIndx, bool stencil)
 
 	unsigned int texId;
 
-	unsigned char* data = new unsigned char[width * height * 4];
-	for (size_t i = 0; i < width; i++)
-	{
-		for (size_t j = 0; j < height; j++)
-		{
-			data[(i * height + j) * 4] = (i + j) % 256;
-			data[(i * height + j) * 4 + 1] = (i + j * 2) % 256;
-			data[(i * height + j) * 4 + 2] = (i * 2 + j) % 256;
-			data[(i * height + j) * 4 + 3] = (i * 3 + j) % 256;
-		}
-	}
-	//buffers.back()->Bind();
-	texId = scn->AddTexture(width, height, data, COLOR);
+	texId = scn->AddTexture(width, height, 0, COLOR);
 	if (stencil)
 		scn->AddTexture(width, height, 0, STENCIL);
 	else
 		scn->AddTexture(width, height, 0, DEPTH);
 	//scn->BindTexture(texId, info->buffer - 1);
 	buffers.push_back(new DrawBuffer(width, height, stencil, texId + 1));
-
-
-	delete[] data;
 
 	return texId;
 }
@@ -241,8 +175,7 @@ int Renderer::Create2Dmaterial(int texsNum)
 	{
 		unsigned int texId = AddBuffer(1, true);
 		texIds.push_back(texId);
-		slots.push_back(i
-		);
+		slots.push_back(i);
 	}
 
 	materialIndx2D = scn->AddMaterial((unsigned int*)& texIds[0], (unsigned int*)& slots[0], texsNum);
@@ -320,8 +253,8 @@ Renderer::~Renderer()
 	{
 		delete info;
 	}
-	delete plane;
-	delete texShader;
+
+	
 }
 
 void Renderer::Clear(float r, float g, float b, float a)
@@ -348,20 +281,5 @@ void Renderer::SetScene(Scene* scene)
 }
 
 
-int Renderer::MotionBlur(int texsNum, int texIndx)
-{
-	std::vector<unsigned int> texIds;
-	std::vector<unsigned int> slots;
-	for (size_t i = 0; i < texsNum; i++)
-	{
-		unsigned int texId = AddBuffer(1, true);
-		texIds.push_back(texId);
-		slots.push_back(i
-		);
-	}
-
-	materialIndx2D = scn->AddMaterial((unsigned int*)& texIds[0], (unsigned int*)& slots[0], texsNum);
-	return materialIndx2D;
-}
 
 

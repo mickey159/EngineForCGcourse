@@ -14,8 +14,8 @@ class MeshConstructor
 	bool is2D;
 	int unsigned indicesNum;
 	
-	void InitLine(IndexedModel &model);
-	void InitMesh(IndexedModel &model);
+	void InitLine(const IndexedModel &model);
+	void InitMesh(const IndexedModel &model);
 	void CopyMesh(const MeshConstructor &mesh);
 	void CopyLine(const MeshConstructor &mesh);
 	static const unsigned int VEC3_ATTRIB_NUM = 3;

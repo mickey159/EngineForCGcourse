@@ -82,7 +82,7 @@ int Scene::AddMaterial(unsigned int texIndices[], unsigned int slots[], unsigned
 	return (materials.size() - 1);
 }
 
-void Scene::Draw(int shaderIndx, const glm::mat4& MVP, bool debugmode)
+void Scene::Draw(int shaderIndx, const glm::mat4& MVP, int viewportIndx, bool debugmode)
 {
 
 	//glEnable(GL_DEPTH_TEST);
@@ -93,7 +93,7 @@ void Scene::Draw(int shaderIndx, const glm::mat4& MVP, bool debugmode)
 
 	for (pickedShape = 0; pickedShape < shapes.size(); pickedShape++)
 	{
-		if (shapes[pickedShape]->Is2Render())
+		if (shapes[pickedShape]->Is2Render(viewportIndx))
 		{
 			glm::mat4 Model = Normal * shapes[pickedShape]->MakeTrans();
 
@@ -186,15 +186,14 @@ void Scene::ReadPixel()
 	glReadPixels(1, 1, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
 }
 
-void Scene::HideShape(int shpIndx)
+void Scene::AddShapeViewport(int shpIndx,int viewPortIndx)
 {
-	shapes[shpIndx]->Hide();
+	shapes[shpIndx]->AddViewport(viewPortIndx);
 }
 
-void Scene::UnhideShape(int shpIndx)
+void Scene::RemoveShapeViewport(int shpIndx, int viewPortIndx)
 {
-
-	shapes[shpIndx]->Unhide();
+	shapes[shpIndx]->RemoveViewport(viewPortIndx);
 }
 
 void Scene::BindMaterial(Shader* s, unsigned int materialIndx)

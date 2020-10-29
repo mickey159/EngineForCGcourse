@@ -13,7 +13,7 @@ private:
 	int shaderID;
 	bool isCopy;
 	unsigned int mode;
-	bool toRender;
+	unsigned int viewports;
 
 public:
 
@@ -25,13 +25,11 @@ public:
 
 	void Draw(const Shader* shaders, bool isPicking);
 
-	inline void Hide() { toRender = false; }
+	inline void AddViewport(int viewport) { viewports = viewports | (1<<viewport); }
 
-	inline void Unhide() { toRender = true; }
+	inline void RemoveViewport(int viewport) { viewports = viewports & ~(1 << viewport); }
 
-	inline bool Is2Render() { return toRender; }
-
-	inline bool Is2D() { return mesh->Is2D(); }
+	inline bool Is2Render(int viewport) { return  viewports & (1 << viewport); }
 
 	inline void SetShader(const int id) { shaderID = id; }
 

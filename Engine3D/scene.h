@@ -36,7 +36,7 @@ public:
 	virtual void WhenPicked() {};
 	virtual void Motion() {};
 	virtual void Reset() {};
-	virtual void Draw(int shaderIndx, const glm::mat4& MVP, bool debugmode = false);
+	virtual void Draw(int shaderIndx, const glm::mat4& MVP, int viewportIndx, bool debugmode = false);
 	virtual ~Scene(void);
 
 	void ShapeTransformation(int type, float amt);
@@ -49,8 +49,8 @@ public:
 
 	inline void Activate() { isActive = true; }
 	inline void Deactivate() { isActive = false; }
-	void HideShape(int shpIndx);
-	void UnhideShape(int shpIndx);
+	void AddShapeViewport(int shpIndx, int viewportIndx);
+	void RemoveShapeViewport(int shpIndx, int viewportIndx);
 	void BindMaterial(Shader* s, unsigned int materialIndx);
 	void BindTexture(int texIndx, int slot) { textures[texIndx]->Bind(slot); }
 

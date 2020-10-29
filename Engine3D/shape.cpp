@@ -10,7 +10,7 @@ Shape::Shape(const Shape& shape, unsigned int mode)
 	//tex = shape.tex;
 	isCopy = true;
 	this->mode = mode;
-	toRender = true;
+	viewports = 1;
 	materialID = shape.materialID;
 	shaderID = shape.shaderID;
 
@@ -20,7 +20,7 @@ Shape::Shape(const std::string& fileName, unsigned int mode) {
 	mesh = new MeshConstructor(fileName);
 	isCopy = false;
 	this->mode = mode;
-	toRender = true;
+	viewports = 1;
 	materialID = 0;
 	shaderID = 1;
 
@@ -32,7 +32,7 @@ Shape::Shape(const int SimpleShapeType, unsigned int mode)
 	//mesh->Bind();
 	this->mode = mode;
 	isCopy = false;
-	toRender = true;
+	viewports = 1;
 	shaderID = 1;
 	materialID = 0;
 }
