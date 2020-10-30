@@ -1,4 +1,4 @@
-#include "game2.h"
+#include "mandelbrot.h"
 #include <iostream>
 #include "GL/glew.h"
 
@@ -13,7 +13,7 @@ static void printMat(const glm::mat4 mat)
 	}
 }
 
-Game2::Game2() : Scene()
+Mandelbrot::Mandelbrot() : Scene()
 {
 	counter = 1;
 }
@@ -22,7 +22,7 @@ Game2::Game2() : Scene()
 //{ 	
 //}
 
-void Game2::Init()
+void Mandelbrot::Init()
 {		
 	unsigned int texIDs[3] = { 0 , 1, 0};
 	unsigned int slots[3] = { 0 , 1, 0 };
@@ -38,7 +38,7 @@ void Game2::Init()
 	SetShapeShader(0, 1);
 }
 
-void Game2::Update(const glm::mat4 &MVP,const glm::mat4 &Model,const int  shaderIndx)
+void Mandelbrot::Update(const glm::mat4 &MVP,const glm::mat4 &Model,const int shaderIndx)
 {	
 	if(counter)
 		counter++;
@@ -69,7 +69,7 @@ void Game2::Update(const glm::mat4 &MVP,const glm::mat4 &Model,const int  shader
 	s->Unbind();
 }
 
-void Game2::UpdatePosition(float xpos,  float ypos)
+void Mandelbrot::UpdatePosition(float xpos,  float ypos)
 {
 	int viewport[4];
 	glGetIntegerv(GL_VIEWPORT, viewport);
@@ -77,26 +77,26 @@ void Game2::UpdatePosition(float xpos,  float ypos)
 	y = 1- ypos / viewport[3]; 
 }
 
-void Game2::WhenRotate()
+void Mandelbrot::WhenRotate()
 {
 	std::cout << "x "<<x<<", y "<<y<<std::endl;
 	
 }
 
-void Game2::WhenTranslate()
+void Mandelbrot::WhenTranslate()
 {
 }
 
 
 
-void Game2::Motion()
+void Mandelbrot::Motion()
 {
 	if(isActive)
 	{
 	}
 }
 
-unsigned int Game2::TextureDesine(int width, int height)
+unsigned int Mandelbrot::TextureDesine(int width, int height)
 {
 	unsigned char* data = new unsigned char[width * height * 4];
 	for (size_t i = 0; i < width; i++)
@@ -116,7 +116,7 @@ unsigned int Game2::TextureDesine(int width, int height)
 	return(textures.size() - 1);
 }
 
-Game2::~Game2(void)
+Mandelbrot::~Mandelbrot(void)
 {
 
 }
