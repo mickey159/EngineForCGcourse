@@ -39,7 +39,7 @@ class Renderer
 public:
 	enum buffersMode { COLOR, DEPTH, STENCIL, BACK, FRONT, NONE };
 	enum transformations { xTranslate, yTranslate, zTranslate, xRotate, yRotate, zRotate, xScale, yScale, zScale, xCameraTranslate, yCameraTranslate, zCameraTranslate };
-	enum drawFlags { toClear = 1, is2D = 2, inAction = 4, scissorTest = 8, depthTest = 16, stencilTest = 32, blend = 64, blackClear = 128 };
+	enum drawFlags { toClear = 1, is2D = 2, inAction = 4, scissorTest = 8, depthTest = 16, stencilTest = 32, blend = 64, blackClear = 128, debugMode = 256};
 
 	Renderer();
 	Renderer(float angle, float relationWH, float near, float far);
@@ -66,7 +66,9 @@ public:
 	inline float GetNear(int cameraIndx) { return cameras[cameraIndx]->GetNear(); }
 	inline float GetFar(int cameraIndx) { return cameras[cameraIndx]->GetFar(); }
 	inline float GetAngle(int cameraIndx) { return cameras[cameraIndx]->GetAngle(); }
-
+	inline void SetDrawFlag(int infoIndx,unsigned int flag) { drawInfo[infoIndx]->SetFlags(flag); }
+	inline void ClearDrawFlag(int infoIndx, unsigned int flag) { drawInfo[infoIndx]->ClearFlags(flag); }
+	bool checkViewport(int x, int y, int viewportIndx);
 	~Renderer();
 private:
 	std::vector<Camera*> cameras;
@@ -80,6 +82,6 @@ private:
 	std::vector<DrawBuffer*> buffers;
 	int materialIndx2D;
 	int toDrawIndx;
-	bool debugMode;
+	
 };
 

@@ -10,7 +10,7 @@ Renderer::Renderer()
 
 	xold = 0;
 	yold = 0;
-	debugMode = false;
+	
 }
 
 Renderer::Renderer(float angle, float relationWH, float near, float far)
@@ -21,7 +21,6 @@ Renderer::Renderer(float angle, float relationWH, float near, float far)
 	xold = 0;
 	yold = 0;
 
-	debugMode = false;
 }
 
 void Renderer::Init(Scene* scene,  std::list<int>xViewport,  std::list<int>yViewport)
@@ -30,13 +29,13 @@ void Renderer::Init(Scene* scene,  std::list<int>xViewport,  std::list<int>yView
 	MoveCamera(0, zTranslate, 10);
 	glm::ivec4 viewport;
 	glGetIntegerv(GL_VIEWPORT, &viewport[0]);
-	drawInfo.push_back(new DrawInfo(0, 0, 0, 0, depthTest | stencilTest | inAction | toClear | blackClear));
+	drawInfo.push_back(new DrawInfo(0, 0, 0, 0,   inAction | toClear | blackClear));
 	buffers.push_back(new DrawBuffer());
 
 	if (xViewport.empty() && yViewport.empty())
 	{
 		viewports.push_back(viewport);
-		drawInfo.push_back(new DrawInfo(0, 0, 1, 0, depthTest | stencilTest | toClear));
+		drawInfo.push_back(new DrawInfo(0, 0, 1, 0,  toClear | blackClear));
 	}
 	else
 	{
@@ -240,6 +239,11 @@ void Renderer::MoveCamera(int cameraIndx, int type, float amt)
 	default:
 		break;
 	}
+}
+
+bool Renderer::checkViewport(int x, int y, int viewportIndx)
+{
+	return (viewports[viewportIndx].x < x&& viewports[viewportIndx].y < y&& viewports[viewportIndx][2] + viewports[viewportIndx][0] > x&& viewports[viewportIndx][3] + viewports[viewportIndx][1] > y);
 }
 
 Renderer::~Renderer()

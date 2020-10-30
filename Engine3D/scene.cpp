@@ -82,12 +82,9 @@ int Scene::AddMaterial(unsigned int texIndices[], unsigned int slots[], unsigned
 	return (materials.size() - 1);
 }
 
-void Scene::Draw(int shaderIndx, const glm::mat4& MVP, int viewportIndx, bool debugmode)
+void Scene::Draw(int shaderIndx, const glm::mat4& MVP, int viewportIndx, unsigned int flags) 
 {
-
-	//glEnable(GL_DEPTH_TEST);
 	glm::mat4 Normal = MakeTrans();
-
 
 	int p = pickedShape;
 

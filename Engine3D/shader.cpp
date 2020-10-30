@@ -20,7 +20,7 @@ Shader::Shader(const std::string& fileName)
 	
 	m_program = glCreateProgram();
 	m_shaders[0] = CreateShader(LoadShader(fileName + ".vs"), GL_VERTEX_SHADER);
-	m_shaders[1] = CreateShader(LoadShader(fileName + ".fs"), GL_FRAGMENT_SHADER);
+	m_shaders[1] = CreateShader(LoadShader(fileName + ".glsl"), GL_FRAGMENT_SHADER);
 
 	for(unsigned int i = 0; i < NUM_SHADERS; i++)
 		glAttachShader(m_program, m_shaders[i]);
@@ -104,6 +104,10 @@ void Shader::SetUniform1i(const std::string& name, int value) {
 	glUniform1i(GetUniformLocation(name),value);
 }
 
+void Shader::SetUniform1ui(const std::string& name, int value) {
+	glUniform1ui(GetUniformLocation(name), value);
+}
+
 void Shader::SetUniform4i(const std::string& name,  int vi0,int vi1,int vi2,int vi3) {
 	glUniform4i(GetUniformLocation(name),vi0,vi1,vi2,vi3);
 }
@@ -132,7 +136,7 @@ void Shader::SetUniform4fv(const std::string& name, const glm::vec4* arr, const 
 int Shader::GetUniformLocation(const std::string& name) {
 	if (m_UniformLocationCache.find(name)!= m_UniformLocationCache.end())
 		return m_UniformLocationCache[name];
-
+	
 	int location = glGetUniformLocation(m_program, name.c_str());
 	if (location == -1 )
 		std::cout<< "Warning: uniform '" << name << "' doesn't exist!" << std::endl;
