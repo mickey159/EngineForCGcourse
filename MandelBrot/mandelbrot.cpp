@@ -24,18 +24,20 @@ Mandelbrot::Mandelbrot() : Scene()
 
 void Mandelbrot::Init()
 {		
-	unsigned int texIDs[3] = { 0 , 1, 0};
+	unsigned int texIDs[3] = { 0 , 1, 0 };
 	unsigned int slots[3] = { 0 , 1, 0 };
-	
-	AddShader("../res/shaders/pickingShader");	
-	AddShader("../res/shaders/myShader");
-	AddTexture("../res/textures/pal.png", 1);
-	//TextureDesine(840, 840);
 
-	AddMaterial(texIDs,slots, 1);
+	AddShader("../res/shaders/pickingShader");
+	AddShader("../res/shaders/basicShader");
 	
+	//AddTexture("../res/textures/pal.png", 1);
+	TextureDesine(800, 800);
+
+	AddMaterial(texIDs, slots, 1);
+
 	AddShape(Plane, -1, TRIANGLES);
-	SetShapeShader(0, 1);
+
+	
 }
 
 void Mandelbrot::Update(const glm::mat4 &MVP,const glm::mat4 &Model,const int shaderIndx)
@@ -50,7 +52,7 @@ void Mandelbrot::Update(const glm::mat4 &MVP,const glm::mat4 &Model,const int sh
 		BindMaterial(s, shapes[pickedShape]->GetMaterial());
 	//textures[0]->Bind(0);
 	s->Bind();
-	if (shaderIndx != 1)
+	if (shaderIndx != 2)
 	{
 		s->SetUniformMat4f("MVP", MVP);
 		s->SetUniformMat4f("Normal", Model);
@@ -61,11 +63,11 @@ void Mandelbrot::Update(const glm::mat4 &MVP,const glm::mat4 &Model,const int sh
 		s->SetUniformMat4f("Normal", glm::mat4(1));
 	}
 	s->SetUniform1i("sampler1", materials[shapes[pickedShape]->GetMaterial()]->GetSlot(0));
-	if(shaderIndx!=1)
+	if(shaderIndx!=2)
 		s->SetUniform1i("sampler2", materials[shapes[pickedShape]->GetMaterial()]->GetSlot(1));
-	s->SetUniform1ui("counter", counter);
+	/*s->SetUniform1ui("counter", counter);
 	s->SetUniform1f("x", x);
-	s->SetUniform1f("y", y);
+	s->SetUniform1f("y", y);*/
 	s->Unbind();
 }
 
