@@ -27,17 +27,18 @@ void Mandelbrot::Init()
 	unsigned int texIDs[3] = { 0 , 1, 0 };
 	unsigned int slots[3] = { 0 , 1, 0 };
 
-	AddShader("../res/shaders/pickingShader");
-	AddShader("../res/shaders/basicShader");
-	
-	//AddTexture("../res/textures/pal.png", 1);
-	TextureDesine(800, 800);
+	AddShader("../res/shaders/pickingShader"); //0 - click on 3d obj always in 0 pos.. even in 2d
+	AddShader("../res/shaders/mandelbrotShader"); // what we will write
+	//AddShader("../res/shaders/basicShader"); // 1
+
+	AddTexture("../res/textures/pal.png", 1); // try returning to 1 later when running or change back to 0
+	//TextureDesine(800, 800); // replace shader
 
 	AddMaterial(texIDs, slots, 1);
 
 	AddShape(Plane, -1, TRIANGLES);
-
-	
+	SetShapeShader(0, 1); // according to shade index	
+	//SetShapeMaterial(0, 0);
 }
 
 void Mandelbrot::Update(const glm::mat4 &MVP,const glm::mat4 &Model,const int shaderIndx)
@@ -52,10 +53,10 @@ void Mandelbrot::Update(const glm::mat4 &MVP,const glm::mat4 &Model,const int sh
 		BindMaterial(s, shapes[pickedShape]->GetMaterial());
 	//textures[0]->Bind(0);
 	s->Bind();
-	if (shaderIndx != 2)
+	if (shaderIndx != 1)
 	{
-		s->SetUniformMat4f("MVP", MVP);
-		s->SetUniformMat4f("Normal", Model);
+		s->SetUniformMat4f("MVP", MVP); //projection + camera transform
+		s->SetUniformMat4f("Normal", Model); //obj transform + scene
 	}
 	else
 	{
@@ -63,20 +64,21 @@ void Mandelbrot::Update(const glm::mat4 &MVP,const glm::mat4 &Model,const int sh
 		s->SetUniformMat4f("Normal", glm::mat4(1));
 	}
 	s->SetUniform1i("sampler1", materials[shapes[pickedShape]->GetMaterial()]->GetSlot(0));
-	if(shaderIndx!=2)
+	if(shaderIndx!=1)
 		s->SetUniform1i("sampler2", materials[shapes[pickedShape]->GetMaterial()]->GetSlot(1));
-	/*s->SetUniform1ui("counter", counter);
-	s->SetUniform1f("x", x);
-	s->SetUniform1f("y", y);*/
+	//send param to shader
+	s->SetUniform1ui("counter", counter); // timer
+	s->SetUniform1f("x", x); // x param
+	s->SetUniform1f("y", y); // y param - warning means we dont use it!
 	s->Unbind();
 }
 
 void Mandelbrot::UpdatePosition(float xpos,  float ypos)
 {
 	int viewport[4];
-	glGetIntegerv(GL_VIEWPORT, viewport);
-	x = xpos / viewport[2];
-	y = 1- ypos / viewport[3]; 
+	glGetIntegerv(GL_VIEWPORT, viewport); //??
+	x = xpos / viewport[2]; // רוחב של המסך הספציפי// coord in px where window start in in case of split screen
+	y = 1 - ypos / viewport[3]; //של המסך הספציפי אורך //// coord in px where window start in
 }
 
 void Mandelbrot::WhenRotate()
@@ -106,7 +108,7 @@ unsigned int Mandelbrot::TextureDesine(int width, int height)
 		for (size_t j = 0; j < height; j++)
 		{
 			data[(i * height + j) * 4] = (i + j) % 256;
-			data[(i * height + j) * 4 + 1] = (i + j * 2) % 256;
+			data[(i * height + j) * 4 + 1] = 0;//(i + j * 2) % 256;
 			data[(i * height + j) * 4 + 2] = (i * 2 + j) % 256;
 			data[(i * height + j) * 4 + 3] = (i * 3 + j) % 256;
 		}

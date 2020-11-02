@@ -15,7 +15,7 @@ uniform mat4 Normal;
 
 void main()
 {
-	texCoord0 = texCoords;
+	texCoord0 = texCoords; //comment
 	color0 = color;
 	normal0 = (Normal * vec4(normal, 0.0)).xyz;
 	position0 = vec3(Normal * vec4(position, 1.0));

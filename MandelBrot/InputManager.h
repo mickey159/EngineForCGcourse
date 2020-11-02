@@ -20,7 +20,7 @@
 		else
 			scn->SetCounter();
 		//std::cout << "yes" << std::endl;
-		rndr->ClearDrawFlag(1,1);
+		rndr->ClearDrawFlag(1,1); // can be deleted.. 
 	}
 	
 	void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
@@ -41,11 +41,14 @@
 
 			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 			{
+				//scn->UpdatePosition((float)xpos, (float)ypos);
 				rndr->MouseProccessing(GLFW_MOUSE_BUTTON_RIGHT);
 			}
 			else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 			{
+				//scn->UpdatePosition((float)xpos, (float)ypos);
 				rndr->MouseProccessing(GLFW_MOUSE_BUTTON_LEFT);
+
 			}
 
 	}
