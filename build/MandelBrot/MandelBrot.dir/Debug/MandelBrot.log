@@ -1,0 +1,11 @@
+﻿  mandelbrot.cpp
+C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\MandelBrot\mandelbrot.cpp(150,27): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\MandelBrot\mandelbrot.cpp(150,24): warning C4244: 'argument': conversion from 'size_t' to 'float', possible loss of data
+C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\MandelBrot\mandelbrot.cpp(151,27): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\MandelBrot\mandelbrot.cpp(151,24): warning C4244: 'argument': conversion from 'size_t' to 'float', possible loss of data
+C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\MandelBrot\mandelbrot.cpp(164,27): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\MandelBrot\mandelbrot.cpp(170,37): warning C4244: '=': conversion from 'float' to 'unsigned char', possible loss of data
+C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\MandelBrot\mandelbrot.cpp(171,37): warning C4244: '=': conversion from 'float' to 'unsigned char', possible loss of data
+C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\MandelBrot\mandelbrot.cpp(172,37): warning C4244: '=': conversion from 'float' to 'unsigned char', possible loss of data
+C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\MandelBrot\mandelbrot.cpp(179,29): warning C4267: 'return': conversion from 'size_t' to 'unsigned int', possible loss of data
+  MandelBrot.vcxproj -> C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\build\MandelBrot\Debug\MandelBrot.exe

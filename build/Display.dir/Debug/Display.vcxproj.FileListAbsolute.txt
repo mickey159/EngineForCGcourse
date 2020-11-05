@@ -1,0 +1,2 @@
+C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\build\Debug\Display.pdb
+C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\build\Display.dir\Debug\Display.pdb

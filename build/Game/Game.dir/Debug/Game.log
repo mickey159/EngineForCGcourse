@@ -1,0 +1,21 @@
+﻿  Building Custom Rule C:/Users/iam_T/OneDrive/����� ������/uni-staff/homework/graphics/EngineForCGcourse/Game/CMakeLists.txt
+  game.cpp
+C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Game\game.cpp(121,29): warning C4267: 'return': conversion from 'size_t' to 'unsigned int', possible loss of data
+  main.cpp
+C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Game\InputManager.h(17,29): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Game\InputManager.h(17,26): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  Generating Code...
+glew32s.lib(glew.obj) : warning LNK4099: PDB 'vc120.pdb' was not found with 'glew32s.lib(glew.obj)' or at 'C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\build\Game\Debug\vc120.pdb'; linking object as if no debug info
+LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
+LINK : warning LNK4217: symbol '__glewFramebufferTexture' defined in 'glew32s.lib(glew.obj)' is imported by 'Engine.lib(DrawBuffer.obj)' in function '"private: void __cdecl DrawBuffer::CreateDepthBufferAttachment(int,int,unsigned int)" (?CreateDepthBufferAttachment@DrawBuffer@@AEAAXHHI@Z)'
+LINK : warning LNK4217: symbol '__glewBindFramebuffer' defined in 'glew32s.lib(glew.obj)' is imported by 'Engine.lib(DrawBuffer.obj)' in function '"private: void __cdecl DrawBuffer::CreateColorBufferAttachment(int,int,unsigned int)" (?CreateColorBufferAttachment@DrawBuffer@@AEAAXHHI@Z)'
+LINK : warning LNK4217: symbol '__glewBindRenderbuffer' defined in 'glew32s.lib(glew.obj)' is imported by 'Engine.lib(DrawBuffer.obj)' in function '"public: void __cdecl DrawBuffer::resize(int,int,unsigned int)" (?resize@DrawBuffer@@QEAAXHHI@Z)'
+LINK : warning LNK4217: symbol '__glewCheckFramebufferStatus' defined in 'glew32s.lib(glew.obj)' is imported by 'Engine.lib(DrawBuffer.obj)' in function '"public: __cdecl DrawBuffer::DrawBuffer(int,int,bool,unsigned int)" (??0DrawBuffer@@QEAA@HH_NI@Z)'
+LINK : warning LNK4217: symbol '__glewDeleteFramebuffers' defined in 'glew32s.lib(glew.obj)' is imported by 'Engine.lib(DrawBuffer.obj)' in function '"public: __cdecl DrawBuffer::~DrawBuffer(void)" (??1DrawBuffer@@QEAA@XZ)'
+LINK : warning LNK4217: symbol '__glewDeleteRenderbuffers' defined in 'glew32s.lib(glew.obj)' is imported by 'Engine.lib(DrawBuffer.obj)' in function '"public: __cdecl DrawBuffer::~DrawBuffer(void)" (??1DrawBuffer@@QEAA@XZ)'
+LINK : warning LNK4217: symbol '__glewFramebufferRenderbuffer' defined in 'glew32s.lib(glew.obj)' is imported by 'Engine.lib(DrawBuffer.obj)' in function '"public: void __cdecl DrawBuffer::resize(int,int,unsigned int)" (?resize@DrawBuffer@@QEAAXHHI@Z)'
+LINK : warning LNK4217: symbol '__glewFramebufferTexture2D' defined in 'glew32s.lib(glew.obj)' is imported by 'Engine.lib(DrawBuffer.obj)' in function '"private: void __cdecl DrawBuffer::CreateColorBufferAttachment(int,int,unsigned int)" (?CreateColorBufferAttachment@DrawBuffer@@AEAAXHHI@Z)'
+LINK : warning LNK4217: symbol '__glewGenFramebuffers' defined in 'glew32s.lib(glew.obj)' is imported by 'Engine.lib(DrawBuffer.obj)' in function '"private: void __cdecl DrawBuffer::CreateColorBufferAttachment(int,int,unsigned int)" (?CreateColorBufferAttachment@DrawBuffer@@AEAAXHHI@Z)'
+LINK : warning LNK4217: symbol '__glewRenderbufferStorage' defined in 'glew32s.lib(glew.obj)' is imported by 'Engine.lib(DrawBuffer.obj)' in function '"public: void __cdecl DrawBuffer::resize(int,int,unsigned int)" (?resize@DrawBuffer@@QEAAXHHI@Z)'
+  Game.vcxproj -> C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\build\Game\Debug\Game.exe

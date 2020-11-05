@@ -8,6 +8,10 @@ public:
 	Mandelbrot();
 	void Init();
 	void Update(const glm::mat4 &MVP,const glm::mat4 &Model,const int  shaderIndx);
+
+	void updateP(float change);
+
+	void updatePixelWidth(float change);
 	
 	void WhenRotate();
 	void WhenTranslate();
@@ -23,5 +27,9 @@ private:
 	unsigned int counter;
 	unsigned int tmp;
 	float x, y;
+	float prevX, prevY;
+	float xOffset, yOffset;
+	float p, z;
+	float pW;
 };
 

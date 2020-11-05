@@ -13,21 +13,24 @@
 		{
 			double x2, y2;
 			glfwGetCursorPos(window, &x2, &y2);
+			/*std::cout << "x2 " << x2 << " y2 " << y2 << std::endl;
+			scn->WhenRotate();
+			scn->WhenTranslate()*/;
 			if (rndr->Picking((int)x2, (int)y2))
 				rndr->UpdatePosition(x2, y2);
-			scn->ResetCounter();
+			//scn->ResetCounter();
 		}
-		else
-			scn->SetCounter();
+		else{}
+			//scn->SetCounter();
 		//std::cout << "yes" << std::endl;
-		rndr->ClearDrawFlag(1,1); // can be deleted.. 
+		//rndr->ClearDrawFlag(1,1); // can be deleted.. 
 	}
 	
 	void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	{
 		Renderer* rndr = (Renderer*)glfwGetWindowUserPointer(window);
 		Mandelbrot* scn = (Mandelbrot*)rndr->GetScene();
-
+		scn->updatePixelWidth(yoffset);
 		scn->MyTranslate(glm::vec3(0,0,xoffset),0);
 		
 	}
@@ -42,7 +45,7 @@
 			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 			{
 				//scn->UpdatePosition((float)xpos, (float)ypos);
-				rndr->MouseProccessing(GLFW_MOUSE_BUTTON_RIGHT);
+				//rndr->MouseProccessing(GLFW_MOUSE_BUTTON_RIGHT);
 			}
 			else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 			{
@@ -81,12 +84,14 @@
 				break;
 
 			case GLFW_KEY_UP:
-				rndr->MoveCamera(0, scn->zTranslate, 0.4f);
+				scn->updateP(1);
+				//rndr->MoveCamera(0, scn->zTranslate, 0.4f);
 				break;
 			case GLFW_KEY_DOWN:
+				scn->updateP(-1);
 				//scn->shapeTransformation(scn->xGlobalRotate,-5.f);
 				//cout<< "down: "<<endl;
-				rndr->MoveCamera(0, scn->zTranslate, -0.4f);
+				//rndr->MoveCamera(0, scn->zTranslate, -0.4f);
 				break;
 			case GLFW_KEY_LEFT:
 				break;
