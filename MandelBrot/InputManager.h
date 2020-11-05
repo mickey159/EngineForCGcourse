@@ -94,8 +94,10 @@
 				//rndr->MoveCamera(0, scn->zTranslate, -0.4f);
 				break;
 			case GLFW_KEY_LEFT:
+				scn->updateColorCounter(true);
 				break;
 			case GLFW_KEY_RIGHT:
+				scn->updateColorCounter(false);
 				break;
 			default:
 				break;

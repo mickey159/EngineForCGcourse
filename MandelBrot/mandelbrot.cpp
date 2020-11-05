@@ -17,7 +17,7 @@ Mandelbrot::Mandelbrot() : Scene()
 {
 	counter = 1;
 	p = 2;
-	z = 1;
+	z = 128;
 	pW = 2;
 	xOffset = 0;
 	yOffset = 0;
@@ -73,7 +73,7 @@ void Mandelbrot::Update(const glm::mat4 &MVP,const glm::mat4 &Model,const int sh
 		s->SetUniform1i("sampler2", materials[shapes[pickedShape]->GetMaterial()]->GetSlot(1));
 	//send param to shader
 	//s->SetUniform1ui("counter", counter); // timer
-	s->SetUniform1f("pW", pW); // px width
+	s->SetUniform1f("pixelWidth", pW); // px width
 
 	s->SetUniform1f("p", p);
 	s->SetUniform1f("z", z);
@@ -91,6 +91,15 @@ void Mandelbrot::updateP(float change) {
 	}
 }
 
+void Mandelbrot::updateColorCounter(bool divide) {
+	if (divide) {
+		z = (z == 2) ? z : z / 2;
+	}
+	else
+		z = (z == 128) ? z : z * 2;
+	std::cout << "colors:" << z << std::endl;
+}
+
 void Mandelbrot::updatePixelWidth(float change) {
 	if (change > 0) {
 		pW /= (change + 1);
@@ -101,7 +110,7 @@ void Mandelbrot::updatePixelWidth(float change) {
 	if (pW > 32) {
 		pW = 32;
 	}
-	std::cout << "pixel width - " << pW << std::endl;
+	std::cout << "pixel width - " << pW/840 << std::endl;
 }
 
 void Mandelbrot::UpdatePosition(float xpos,  float ypos)
@@ -116,8 +125,8 @@ void Mandelbrot::UpdatePosition(float xpos,  float ypos)
 
 void Mandelbrot::WhenRotate()
 {
-	xOffset += x - prevX;
-	yOffset += y - prevY;
+	xOffset += (x - prevX)*pW;
+	yOffset += (y - prevY)*pW;
 }
 
 void Mandelbrot::WhenTranslate()

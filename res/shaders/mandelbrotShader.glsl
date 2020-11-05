@@ -9,7 +9,7 @@ uniform vec4 lightColor;
 uniform sampler1D sampler1;
 uniform vec4 lightDirection;
 
-uniform float pW;
+uniform float pixelWidth;
 uniform float z;
 uniform float p;
 uniform float x;
@@ -23,10 +23,10 @@ float mapRange(float num, float total, float minR, float maxR) {
 
 void main()
 {
-	float iter = 50;
+	float iter = 100;
 
-	float cx = mapRange(texCoord0.x, 1, -pW + xOffset, pW + xOffset);
-	float cy = mapRange(texCoord0.y, 1, -pW + yOffset, pW + yOffset);
+	float cx = mapRange(texCoord0.x, 1, -pixelWidth + xOffset, pixelWidth + xOffset);
+	float cy = mapRange(texCoord0.y, 1, -pixelWidth + yOffset, pixelWidth + yOffset);
 	int counter = 0;
 	float zx = 0;
 	float zy = 0;
@@ -38,19 +38,17 @@ void main()
 		counter++;
 	}
 
-	float color = mapRange(counter, iter, 0, 1);
+	float color = round(mapRange(counter, iter, 0, z));
+	color = mapRange(color, z, 0, 1);
 	if (counter == iter) {
 		color = 0;
 	}
+
 	if(pow(texCoord0.x-x, 2) + pow(texCoord0.y-y, 2) < 0.001){
 		gl_FragColor = vec4(0,1,1,1);
 	}
 	else{
-		//gl_FragColor = texture(sampler1,texCoord0.y);
 		gl_FragColor = vec4(0, color, color, color);
-		gl_FragColor = texture(sampler1, color / z);// * vec4(color, color, color, 1);
+		gl_FragColor = texture(sampler1, color);
 	}
-//	gl_FragColor = texture(sampler1, coord); //you must have gl_FragColor
-	//gl_FragColor = texture(sampler1,texCoord0.s);
-	//texture2D
 }

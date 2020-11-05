@@ -11,6 +11,8 @@ public:
 
 	void updateP(float change);
 
+	void updateColorCounter(bool divide);
+
 	void updatePixelWidth(float change);
 	
 	void WhenRotate();
