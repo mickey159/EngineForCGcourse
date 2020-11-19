@@ -155,7 +155,6 @@ void Scene::MouseProccessing(int button, int xrel, int yrel)
 	//{
 	if (button == 1)
 	{
-
 		MyTranslate(glm::vec3(-xrel / 80.0f, 0, 0), 0);
 		MyTranslate(glm::vec3(0, yrel / 80.0f, 0), 0);
 		WhenTranslate();

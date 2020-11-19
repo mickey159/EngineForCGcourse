@@ -1,0 +1,10 @@
+^C:\USERS\IAM_T\ONEDRIVE\שולחן העבודה\UNI-STAFF\HOMEWORK\GRAPHICS\ENGINEFORCGCOURSE\RAYS\CMAKELISTS.TXT
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" "-SC:/Users/iam_T/OneDrive/שולחן העבודה/uni-staff/homework/graphics/EngineForCGcourse" "-BC:/Users/iam_T/OneDrive/שולחן העבודה/uni-staff/homework/graphics/EngineForCGcourse/build" --check-stamp-file "C:/Users/iam_T/OneDrive/שולחן העבודה/uni-staff/homework/graphics/EngineForCGcourse/build/Rays/CMakeFiles/generate.stamp"
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

@@ -194,6 +194,12 @@ MandelBrot_BINARY_DIR:STATIC=C:/Users/iam_T/OneDrive/שולחן העבודה/uni
 //Value Computed by CMake
 MandelBrot_SOURCE_DIR:STATIC=C:/Users/iam_T/OneDrive/שולחן העבודה/uni-staff/homework/graphics/EngineForCGcourse/MandelBrot
 
+//Value Computed by CMake
+Rays_BINARY_DIR:STATIC=C:/Users/iam_T/OneDrive/שולחן העבודה/uni-staff/homework/graphics/EngineForCGcourse/build/Rays
+
+//Value Computed by CMake
+Rays_SOURCE_DIR:STATIC=C:/Users/iam_T/OneDrive/שולחן העבודה/uni-staff/homework/graphics/EngineForCGcourse/Rays
+
 
 ########################
 # INTERNAL cache entries
@@ -277,7 +283,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_MT
 CMAKE_MT-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=3
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=4
 //Platform information initialized
 CMAKE_PLATFORM_INFO_INITIALIZED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_RC_COMPILER

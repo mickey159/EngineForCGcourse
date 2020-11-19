@@ -186,6 +186,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <Project>{F4EC45D0-21A8-3DDD-AEB9-ED08A1EEFE8C}</Project>
       <Name>MandelBrot</Name>
     </ProjectReference>
+    <ProjectReference Include="C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\build\Rays\Rays.vcxproj">
+      <Project>{BE39650E-4BB7-35D7-97AD-15E3647229F5}</Project>
+      <Name>Rays</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
