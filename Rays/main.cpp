@@ -6,7 +6,7 @@ int main(int argc,char *argv[])
 	const int DISPLAY_WIDTH = 840;
 	const int DISPLAY_HEIGHT = 840;
 
-	const float CAMERA_ANGLE = 0.0f;
+	const float CAMERA_ANGLE = 0.0f; //60 i class
 	const float NEAR = 1.0f;
 	const float FAR = 100.0f;
 	const int infoIndx = 2; 

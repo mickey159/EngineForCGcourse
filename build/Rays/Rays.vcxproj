@@ -321,6 +321,8 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Rays\main.cpp" />
     <ClCompile Include="C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Rays\rays.cpp" />
     <ClInclude Include="C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Rays\rays.h" />
+    <ClCompile Include="C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Rays\sceneParser.cpp" />
+    <ClInclude Include="C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Rays\sceneParser.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\build\ZERO_CHECK.vcxproj">

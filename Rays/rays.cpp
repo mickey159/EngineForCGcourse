@@ -1,6 +1,9 @@
+#define GLM_SWIZZLE
 #include "rays.h"
 #include <iostream>
 #include "GL/glew.h"
+#include <glm/glm.hpp>
+
 
 static void printMat(const glm::mat4 mat)
 {
@@ -23,27 +26,33 @@ Rays::Rays() : Scene()
 	yOffset = 0;
 }
 
-//Game2::Game2(float angle ,float relationWH, float near, float far) : Scene(angle,relationWH,near,far)
-//{ 	
-//}
-
 void Rays::Init()
 {		
 	unsigned int texIDs[3] = { 0 , 1, 0 };
 	unsigned int slots[3] = { 0 , 1, 0 };
-
+	std::string str = "../res/scenes/scene1.txt";
+	SceneData scene;
+	SceneParser(str, &scene);
+	
 	AddShader("../res/shaders/pickingShader"); //0 - click on 3d obj always in 0 pos.. even in 2d
-	AddShader("../res/shaders/mandelbrotShader"); // what we will write
-	//AddShader("../res/shaders/basicShader"); // 1
-
-	AddTexture("../res/textures/pal.png", 1); // try returning to 1 later when running or change back to 0
-	//TextureDesine(840, 840); // replace shader
+	//AddShader("../res/shaders/mandelbrotShader"); // what we will write
+	AddShader("../res/shaders/basicShader"); // 1
+	// 2 for 2d
+	//AddTexture("../res/textures/box0.bmp", 2); // try returning to 1 later when running or change back to 0
+	TextureDesine(840, 840, &scene); // replace shader
 
 	AddMaterial(texIDs, slots, 1);
 
 	AddShape(Plane, -1, TRIANGLES);
+	//AddShape(Cube, -1, TRIANGLES);
 	SetShapeShader(0, 1); // according to shade index	
+
+	//addShapeFromFile(url, -1, TRINGALE)
+	//shapeTransformation
+	//add shape copy
+
 	//SetShapeMaterial(0, 0);
+	//std::cout << "scene\n" << scene << std::endl;
 }
 
 void Rays::Update(const glm::mat4 &MVP,const glm::mat4 &Model,const int shaderIndx)
@@ -71,33 +80,16 @@ void Rays::Update(const glm::mat4 &MVP,const glm::mat4 &Model,const int shaderIn
 	s->SetUniform1i("sampler1", materials[shapes[pickedShape]->GetMaterial()]->GetSlot(0));
 	if(shaderIndx!=1)
 		s->SetUniform1i("sampler2", materials[shapes[pickedShape]->GetMaterial()]->GetSlot(1));
-	//send param to shader
-	//s->SetUniform1ui("counter", counter); // timer
-	s->SetUniform1f("pixelWidth", pW); // px width
 
 	s->SetUniform1f("p", p);
-	s->SetUniform1f("z", z);
-	s->SetUniform1f("x", x); // x param
-	s->SetUniform1f("y", y); // y param - warning means we dont use it!
-	s->SetUniform1f("xOffset", xOffset);
-	s->SetUniform1f("yOffset", yOffset);
 	s->Unbind();
 }
 
 void Rays::updateP(float change) {
-	p += change;
-	if (p < 2) {
-		p = 2;
-	}
 }
 
 void Rays::updateColorCounter(bool divide) {
-	if (divide) {
-		z = (z == 2) ? z : z / 2;
-	}
-	else
-		z = (z == 128) ? z : z * 2;
-	std::cout << "colors:" << z << std::endl;
+
 }
 
 void Rays::updatePixelWidth(float change) {
@@ -133,8 +125,6 @@ void Rays::WhenTranslate()
 {
 }
 
-
-
 void Rays::Motion()
 {
 	if(isActive)
@@ -142,42 +132,74 @@ void Rays::Motion()
 	}
 }
 
+float norm(glm::vec3 p) {
+	return sqrt(pow((p.x), 2) + pow((p.y), 2) + pow((p.z), 2));
+}
+
+float dot(glm::vec3 p1, glm::vec3 p2) {
+	return p1.x * p2.x + p1.y * p2.y + p1.z * p2.z;
+}
+
+float intersection(glm::vec3 sourcePoint, glm::vec3 v, int size, std::vector<glm::vec4> objects){
+	float tMin = std::numeric_limits<float>::infinity();
+	for (int k = 0; k < size; k++) {
+		float t = std::numeric_limits<float>::infinity();
+		glm::vec4 obj = objects[k];
+		if (obj.w < 0) { //plane
+			//std::cout << "plane " << std::endl;
+		}
+		else {
+			glm::vec3 src_obj = sourcePoint - obj.xyz;
+			float a = 1.0;
+			float b = 2.0 * dot(v, src_obj);
+			float c = dot(src_obj, src_obj) - obj.w * obj.w;
+			float d = b * b - 4.0 * a * c;
+			if (d < 0.0) {}// no intersection
+			else // line intersects sphere			
+			{
+				if ((-b - sqrt(d)) / (2.0 * a) > 0)
+					t = (-b - sqrt(d)) / (2.0 * a);
+			}
+		}
+		if (tMin > t) {
+			tMin = t;
+		}
+	}
+	if (tMin != std::numeric_limits<float>::infinity()) return tMin;
+	return -1;
+}
+
 float mapRange(float num, float total, float minR, float maxR) {
 	return num * ((maxR - minR) / total) + minR;
 }
 
-unsigned int Rays::TextureDesine(int width, int height)
+glm::vec3 ConstructRayThroughPixel(glm::vec4 scene_eye, int i, int j){
+	glm::vec3 eye = scene_eye.xyz;
+	glm::vec3 p = glm::vec3(i, j, 0);
+	glm::vec3 p1 = p - eye;
+	float nrm = norm(p1);
+	glm::vec3 ray = glm::vec3(p1.x / nrm, p1.y / nrm, p1.z / nrm);
+	return ray;
+}
+
+unsigned int Rays::TextureDesine(int width, int height, SceneData* scene)
 {
-	float p = 11;
-	float iter = 50;
 	unsigned char* data = new unsigned char[width * height * 4];
 	for (size_t i = 0; i < width; i++)
 	{
 		for (size_t j = 0; j < height; j++)
-		{
-			float cx = mapRange(i, width, -2, 1);
-			float cy = mapRange(j, height, -1.5, 1.5);
-			
-			int counter = 0;
-			float zx = 0;
-			float zy = 0;
-			while (counter < iter && zx*zx + zy*zy < 4.0) {
-				float c = zx * zx + zy * zy;
-				float t = pow(c, p/2)*cos(p*atan2(zy,zx)) + cx;
-				zy = pow(c, p / 2) * sin(p * atan2(zy, zx)) + cy;
-				zx = t;
-				counter++;
+		{	
+			glm::vec3 color = glm::vec3(0, 0, 0);
+			glm::vec3 V = ConstructRayThroughPixel(scene->eye, mapRange(i, width, -1, 1), mapRange(j, height, -1, 1));
+			float t = intersection(scene->eye.xyz, V, scene->sizes[0], scene->objects);
+			if (t >= 0) {
+				//std::cout << "t" << t << std::endl;
+				color = glm::vec3(255, 255, 0);
 			}
-
-			float color = mapRange(counter, iter, 0, 255);
-			if (counter == iter) {
-				color = 0;
-			}
-
-			data[(i * height + j) * 4] = 0; //color;//(i + j) % 256;
-			data[(i * height + j) * 4 + 1] = color;//color;//(i + j * 2) % 256;
-			data[(i * height + j) * 4 + 2] = color;//color;
-			data[(i * height + j) * 4 + 3] = color;
+			data[(i * height + j) * 4] = color.x;
+			data[(i * height + j) * 4 + 1] = color.y;
+			data[(i * height + j) * 4 + 2] = color.z;;
+			data[(i * height + j) * 4 + 3] = 0;
 		}
 	}
 	textures.push_back(new Texture(width, height));

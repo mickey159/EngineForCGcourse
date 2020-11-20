@@ -1,5 +1,6 @@
 #pragma once
 #include "scene.h"
+#include <Rays\sceneParser.h>
 
 class Rays : public Scene
 {
@@ -19,7 +20,7 @@ public:
 	void WhenTranslate();
 	void Motion();
 	
-	unsigned int TextureDesine(int width, int height);
+	unsigned int TextureDesine(int width, int height, SceneData* scene);
 	~Rays(void);
 	inline void ResetCounter() { tmp = counter; counter = 0; }
 	inline void SetCounter() { counter = tmp; }
