@@ -30,16 +30,20 @@ void Rays::Init()
 {		
 	unsigned int texIDs[3] = { 0 , 1, 0 };
 	unsigned int slots[3] = { 0 , 1, 0 };
-	std::string str = "../res/scenes/scene1.txt";
+	std::string str = "../res/scenes/scene4.txt";
 	SceneData scene;
 	SceneParser(str, &scene);
 	
 	AddShader("../res/shaders/pickingShader"); //0 - click on 3d obj always in 0 pos.. even in 2d
-	//AddShader("../res/shaders/mandelbrotShader"); // what we will write
+	//AddShader("../res/shaders/rays"); // what we will write
 	AddShader("../res/shaders/basicShader"); // 1
 	// 2 for 2d
 	//AddTexture("../res/textures/box0.bmp", 2); // try returning to 1 later when running or change back to 0
 	TextureDesine(840, 840, &scene); // replace shader
+
+
+
+
 
 	AddMaterial(texIDs, slots, 1);
 
@@ -173,7 +177,7 @@ float mapRange(float num, float total, float minR, float maxR) {
 	return num * ((maxR - minR) / total) + minR;
 }
 
-glm::vec3 ConstructRayThroughPixel(glm::vec4 scene_eye, int i, int j){
+glm::vec3 ConstructRayThroughPixel(glm::vec4 scene_eye, float i, float j){
 	glm::vec3 eye = scene_eye.xyz;
 	glm::vec3 p = glm::vec3(i, j, 0);
 	glm::vec3 p1 = p - eye;
@@ -181,6 +185,86 @@ glm::vec3 ConstructRayThroughPixel(glm::vec4 scene_eye, int i, int j){
 	glm::vec3 ray = glm::vec3(p1.x / nrm, p1.y / nrm, p1.z / nrm);
 	return ray;
 }
+
+glm::vec3 normalize(glm::vec3 v) {
+	float nrm = norm(v);
+	return glm::vec3(v.x / nrm, v.y / nrm, v.z / nrm);
+}
+
+glm::vec3 calcAmbientColor(SceneData* scene, int objIndex) {
+	glm::vec3 color = glm::vec3(scene->ambient.x * scene->colors[objIndex].x,
+		scene->ambient.y * scene->colors[objIndex].y, 
+		scene->ambient.z * scene->colors[objIndex].z);
+	return color;
+}
+
+glm::vec3 getSphereNormal(glm::vec4 sphere, glm::vec3 hit) {
+	return glm::vec3(2 * (hit.x - sphere.x), 2 * (hit.y - sphere.y), 2 * (hit.z - sphere.z));
+}
+
+float max(float a, float b) {
+	if (a > b)
+		return a;
+	return b;
+}
+
+glm::vec3 calcdiffusecolor(glm::vec4 obj, glm::vec3 hit, glm::vec4 objColor, glm::vec4 light, glm::vec4 lightColor) {
+	glm::vec3 sphereNorm = normalize(getSphereNormal(obj, hit)); // sphere n
+	glm::vec3 lightDir = light.xyz;
+	float diff = max(dot(sphereNorm, lightDir), 0.0);
+	return diff * lightColor.xyz;
+}
+
+glm::vec3 calcspecularcolor(SceneData* scene, glm::vec3 hit, glm::vec4 light) {
+	//vec3 viewPos = eye;
+	//float specularStrength = 0.5;
+	//vec3 viewDir = normalize(viewPos - FragPos); // view dir
+	//vec3 reflectDir = reflect(-lightDir, norm);
+	//float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+	//vec3 specular = specularStrength * spec * lightColor;
+	//vec3 result = (ambient + diffuse + specular) * objectColor;
+	//FragColor = vec4(result, 1.0);
+	//glm::vec3 color = glm::vec3(0, 0, 0);
+	//return color;
+}
+
+glm::vec3 GetColor(SceneData* scene, glm::vec3 in_ray, glm::vec3 hit)
+{
+	int index = -1;
+	float delta = 0.0001;
+	for (int k = 0; k < scene->sizes[0]; k++) {
+		if (scene->objects[k].w < 0) {} // plane
+		else if (dot(hit - scene->objects[k].xyz, hit - scene->objects[k].xyz) - (scene->objects[k].w * scene->objects[k].w) < delta) {
+			index = k;
+			break;
+		}
+	}
+	glm::vec3 color = calcAmbientColor(scene, index);
+	for (int i = 0; i < scene->sizes[1]; i++) {
+		glm::vec4 light = scene->directions[i];
+		// light.w == 1 - spotlight if 0 direction
+		//intensities - light color
+		color += calcdiffusecolor(scene->objects[index], hit, scene->colors[i], light, scene->intensities[i]);
+			//+
+			//calcspecularcolor(scene, hit, light);
+	}
+	return color;
+}
+
+//glm::vec3 colorCalc(glm::vec3 intersectionPoint, SceneData* scene, float i, float j)
+//{
+//	glm::vec3 color = glm::vec3(153, 0, 51);
+//	glm::vec3 V = ConstructRayThroughPixel(scene->eye, mapRange(i, width, -1, 1), mapRange(j, height, -1, 1));
+//	float t = intersection(scene->eye.xyz, V, scene->sizes[0], scene->objects);
+//	if (t >= 0) {
+//		color = GetColor(scene, V, scene->eye.xyz + t * V);
+//		color.x = mapRange(color.x, 1, 0, 255);
+//		color.y = mapRange(color.y, 1, 0, 255);
+//		color.z = mapRange(color.z, 1, 0, 255);
+//	}
+//
+//	return color;
+//}
 
 unsigned int Rays::TextureDesine(int width, int height, SceneData* scene)
 {
@@ -193,8 +277,10 @@ unsigned int Rays::TextureDesine(int width, int height, SceneData* scene)
 			glm::vec3 V = ConstructRayThroughPixel(scene->eye, mapRange(i, width, -1, 1), mapRange(j, height, -1, 1));
 			float t = intersection(scene->eye.xyz, V, scene->sizes[0], scene->objects);
 			if (t >= 0) {
-				//std::cout << "t" << t << std::endl;
-				color = glm::vec3(255, 255, 0);
+				color = GetColor(scene, V, scene->eye.xyz + t * V);
+				color.x = mapRange(color.x, 1, 0, 255);
+				color.y = mapRange(color.y, 1, 0, 255);
+				color.z = mapRange(color.z, 1, 0, 255);
 			}
 			data[(i * height + j) * 4] = color.x;
 			data[(i * height + j) * 4 + 1] = color.y;
