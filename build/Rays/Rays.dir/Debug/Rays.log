@@ -1,27 +1,33 @@
 ﻿  rays.cpp
 C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Rays\sceneParser.h(43,14): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
-C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Rays\rays.cpp(158,12): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Rays\rays.cpp(149,22): warning C4305: 'initializing': truncation from 'double' to 'float'
 C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Rays\rays.cpp(160,12): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Rays\rays.cpp(165,25): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Rays\rays.cpp(226,22): warning C4305: 'initializing': truncation from 'double' to 'float'
-C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Rays\rays.cpp(269,67): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Rays\rays.cpp(269,64): warning C4244: 'argument': conversion from 'size_t' to 'float', possible loss of data
-C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Rays\rays.cpp(269,94): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Rays\rays.cpp(269,91): warning C4244: 'argument': conversion from 'size_t' to 'float', possible loss of data
-C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Rays\rays.cpp(277,38): warning C4244: '=': conversion from 'T' to 'unsigned char', possible loss of data
+C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Rays\rays.cpp(162,12): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Rays\rays.cpp(167,25): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Rays\rays.cpp(232,21): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Rays\rays.cpp(268,22): warning C4305: 'initializing': truncation from 'double' to 'float'
+C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Rays\rays.cpp(313,67): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Rays\rays.cpp(313,64): warning C4244: 'argument': conversion from 'size_t' to 'float', possible loss of data
+C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Rays\rays.cpp(313,94): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Rays\rays.cpp(313,91): warning C4244: 'argument': conversion from 'size_t' to 'float', possible loss of data
+C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Rays\rays.cpp(316,68): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Rays\rays.cpp(316,65): warning C4244: 'argument': conversion from 'size_t' to 'float', possible loss of data
+C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Rays\rays.cpp(316,95): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Rays\rays.cpp(316,92): warning C4244: 'argument': conversion from 'size_t' to 'float', possible loss of data
+C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Rays\rays.cpp(321,38): warning C4244: '=': conversion from 'T' to 'unsigned char', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Rays\rays.cpp(278,42): warning C4244: '=': conversion from 'T' to 'unsigned char', possible loss of data
+C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Rays\rays.cpp(322,42): warning C4244: '=': conversion from 'T' to 'unsigned char', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Rays\rays.cpp(279,42): warning C4244: '=': conversion from 'T' to 'unsigned char', possible loss of data
+C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Rays\rays.cpp(323,42): warning C4244: '=': conversion from 'T' to 'unsigned char', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Rays\rays.cpp(287,29): warning C4267: 'return': conversion from 'size_t' to 'unsigned int', possible loss of data
+C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Rays\rays.cpp(331,29): warning C4267: 'return': conversion from 'size_t' to 'unsigned int', possible loss of data
   Rays.vcxproj -> C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\build\Rays\Debug\Rays.exe

@@ -1,8 +1,1 @@
-﻿  scene.cpp
-C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Engine3D\scene.cpp(48,29): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Engine3D\scene.cpp(54,29): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Engine3D\scene.cpp(76,29): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Engine3D\scene.cpp(82,31): warning C4267: 'return': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Engine3D\scene.cpp(200,44): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\Engine3D\scene.cpp(201,88): warning C4267: 'argument': conversion from 'size_t' to 'unsigned int', possible loss of data
-  Engine.vcxproj -> C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\build\Debug\Engine.lib
+﻿  Engine.vcxproj -> C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\build\Debug\Engine.lib
