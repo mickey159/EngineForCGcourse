@@ -34,5 +34,13 @@ private:
 	float xOffset, yOffset;
 	float p, z;
 	float pW;
+	glm::vec4 eye; 
+	glm::vec4 ambient;
+	glm::ivec4 sizes;
+	std::vector<glm::vec4> objects;
+	std::vector<glm::vec4> lights;
+	std::vector<glm::vec4> directions;
+	std::vector<glm::vec4> colors;
+	std::vector<glm::vec4> intensities;
 };
 
