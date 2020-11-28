@@ -89,14 +89,16 @@ bool shadow(bool spotLight, vec4 hit, int light) {
 	vec4 nextHit = intersection(hit.xyz, V, int(hit.w));
 	float t = length(nextHit.xyz);
 	int index = int(nextHit.w);
-	return  !(objects[index].w < 0.0) && t > 0 && t < length(hit.xyz - lightPosition[light].xyz);
+	if(index > -1 && !(objects[index].w < 0.0)) //hit sphere
+		return t > 0 && t < length(hit.xyz - lightPosition[light].xyz);
+	return false;
 }
 vec3 calcLight(int light, vec3 N, vec3 V, vec4 hit, float n, bool checkered){
 	vec3 D = lightsDirection[light].xyz;
 	float Kd = (checkered ? 0.5 : 1) * calcdiffuse(N, D);
 	float Ks =  2 * calcspecular(N, D, V, n);
 	vec3 color = (Kd + Ks) * lightsIntensity[light].xyz;
-	if(shadow(lightsDirection[light].w == 1.0, hit, light)){
+	if(!shadow(lightsDirection[light].w == 1.0, hit, light)){
 		if (lightsDirection[light].w == 1.0 && 
 			!calcspotlight(lightPosition[light], D, hit.xyz)){} //spotlight but point not affected
 		else
@@ -105,13 +107,15 @@ vec3 calcLight(int light, vec3 N, vec3 V, vec4 hit, float n, bool checkered){
 	return vec3(0,0,0);
 }
 
-vec3 calcdiffusecolor(vec3 N, int lIndex) {
-	return max(0.5*dot(N, normalize(lightsDirection[lIndex].xyz)), 0.0) * lightsIntensity[lIndex].xyz;
-}
-vec3 calcspecularcolor(vec3 N,int oIndex, int lIndex, vec3 viewDir){
-	vec3 reflectDir = reflect(normalize(lightsDirection[lIndex].xyz), N);
-	float spec = pow(max(dot(viewDir, reflectDir), 0.0), objColors[oIndex].w);//lightsIntensity[lIndex].w);
-	return 0.7 * spec * lightsIntensity[lIndex].xyz;
+vec3 colorCalc(vec4 hit, vec3 V, vec3 N){
+	vec3 color = vec3(0, 0, 0);
+	int index = int(hit.w);
+	bool checkered = mod(int(1.5 * hit.x + 100), 2) == mod(int(1.5 * hit.y + 100), 2);
+	for (int i = 0; i < sizes[1]; i++) {
+		color += objColors[index].xyz *
+			calcLight(i, N, V, hit, objColors[index].w, objects[index].w < 0 && checkered);
+	}
+	return color;
 }
 vec3 colorCalc(vec3 intersectionPoint){
     vec3 color = 0.25 * ambient.xyz;
@@ -121,27 +125,21 @@ vec3 colorCalc(vec3 intersectionPoint){
 	int index = int(hit.w);
 	vec3 N = normalize(objects[index].w < 0.0 ? objects[index].xyz : (objects[index].xyz -hit.xyz));
 	if(index >= sizes[2]){ //not reflection
-		bool checkered = mod(int(1.5 * hit.x + 100), 2) == mod(int(1.5 * hit.y + 100), 2);
-		for (int i = 0; i < sizes[1]; i++) {
-			color += objColors[index].xyz *
-				calcLight(i, N, V, hit, objColors[index].w, objects[index].w < 0 && checkered);
-		}
+		color += colorCalc(hit, V, N);
 	}
 	else if(index > -1){ //reflection obj
-		for (int j = 0; j < 1; j++) {
+		for (int j = 0; j < 2; j++) {
 			V = reflect(normalize(V), normalize(N));
 			hit = intersection(hit.xyz, V, -1);
 			
 			index = int(hit.w);
 			N = normalize(objects[index].w < 0.0 ? objects[index].xyz : (objects[index].xyz -hit.xyz));
 			if(index >= sizes[2]){
-				bool checkered = mod(int(1.5 * hit.x + 100), 2) == mod(int(1.5 * hit.y + 100), 2);
-				for (int i = 0; i < sizes[1]; i++) {
-					color += objColors[index].xyz *
-						calcLight(i, N, V, hit, objColors[index].w, objects[index].w < 0 && checkered);
-				}
+				color += colorCalc(hit, V, N);
 			} //colored
-			else if(hit.w > -1){} //reflective
+			else if(hit.w > -1){
+				j--;
+			} //reflective
 			else
 				break;
 		}
