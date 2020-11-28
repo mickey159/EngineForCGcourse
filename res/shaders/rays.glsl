@@ -8,9 +8,6 @@ uniform vec4[10] lightsDirection;
 uniform vec4[10] lightsIntensity;
 uniform vec4[10] lightPosition;
 uniform ivec4 sizes; //{number of objects , number of lights , width, hight}  
-uniform float zOffset;
-uniform float xOffset;
-uniform float yOffset;
 
 in vec3 position1;
 
@@ -98,9 +95,9 @@ bool shadow(bool spotLight, vec4 hit, int light) {
 }
 vec3 calcLight(int light, vec3 N, vec3 V, vec4 hit, float n, bool checkered){
 	vec3 D = lightsDirection[light].xyz;
-	float Kd = calcdiffuse(N, D);
-	float Ks = calcspecular(N, D, V, n);
-	vec3 color = (checkered ? 0.5 : 1) *  (Kd + Ks) * lightsIntensity[light].xyz;
+	float Kd = (checkered ? 0.5 : 1) * calcdiffuse(N, D);
+	float Ks =  2 * calcspecular(N, D, V, n);
+	vec3 color = (Kd + Ks) * lightsIntensity[light].xyz;
 	if(!shadow(lightsDirection[light].w == 1.0, hit, light)){
 		if (lightsDirection[light].w == 1.0 && 
 			!calcspotlight(lightPosition[light], D, hit.xyz)){} //spotlight but point not affected
@@ -118,37 +115,33 @@ vec3 colorCalc(vec4 hit, vec3 V, vec3 N){
 		color += objColors[index].xyz *
 			calcLight(i, N, V, hit, objColors[index].w, objects[index].w < 0 && checkered);
 	}
-	return color + 0.25*objColors[index].xyz;
+	return color;
 }
 vec3 colorCalc(vec3 intersectionPoint){
     vec3 color = 0.25 * ambient.xyz;
 	vec3 V = normalize(vec3(position1.xy, 0) - intersectionPoint);
-	intersectionPoint.x -= xOffset;// mapRange(intersectionPoint.x, 1, -pixelWidth + xOffset, pixelWidth + xOffset);
-	intersectionPoint.y -= yOffset;// mapRange(intersectionPoint.y, 1, -pixelWidth + yOffset, pixelWidth + yOffset);
-	intersectionPoint.z -= zOffset;
 	vec4 hit = intersection(intersectionPoint, V, -1);
 	
 	int index = int(hit.w);
 	vec3 N = normalize(objects[index].w < 0.0 ? objects[index].xyz : (objects[index].xyz -hit.xyz));
 	if(index >= sizes[2]){ //not reflection
-		color = colorCalc(hit, V, N);
+		color += colorCalc(hit, V, N);
 	}
 	else if(index > -1){ //reflection obj
-		for (int j = 0; j < 5; j++) {
+		for (int j = 0; j < 2; j++) {
 			V = reflect(normalize(V), normalize(N));
 			hit = intersection(hit.xyz, V, -1);
 			
 			index = int(hit.w);
 			N = normalize(objects[index].w < 0.0 ? objects[index].xyz : (objects[index].xyz -hit.xyz));
-			if(index > -1){
-				color = colorCalc(hit, V, N);
-				if(index < sizes[2]) // reflective surface
-					continue;
-			} // obj
-			else //hit space
-				color = 0.25 * ambient.xyz;
-			break;
-
+			if(index >= sizes[2]){
+				color += colorCalc(hit, V, N);
+			} //colored
+			else if(hit.w > -1){
+				j--;
+			} //reflective
+			else
+				break;
 		}
 	}
     return clamp(color, 0, 1);;

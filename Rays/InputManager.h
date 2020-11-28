@@ -11,6 +11,7 @@
 		Rays* scn = (Rays*)rndr->GetScene();
 		if (action == GLFW_PRESS)
 		{
+			scn->trySelect(true);
 			double x2, y2;
 			glfwGetCursorPos(window, &x2, &y2);
 			/*std::cout << "x2 " << x2 << " y2 " << y2 << std::endl;
@@ -20,7 +21,9 @@
 				rndr->UpdatePosition(x2, y2);
 			//scn->ResetCounter();
 		}
-		else{}
+		else{
+			scn->trySelect(true);
+		}
 			//scn->SetCounter();
 		//std::cout << "yes" << std::endl;
 		//rndr->ClearDrawFlag(1,1); // can be deleted.. 
@@ -45,7 +48,7 @@
 			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 			{
 				//scn->UpdatePosition((float)xpos, (float)ypos);
-				//rndr->MouseProccessing(GLFW_MOUSE_BUTTON_RIGHT);
+				rndr->MouseProccessing(GLFW_MOUSE_BUTTON_RIGHT);
 			}
 			else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 			{

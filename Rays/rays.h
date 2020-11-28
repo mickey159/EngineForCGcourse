@@ -17,6 +17,7 @@ public:
 	void updatePixelWidth(float change);
 	
 	void WhenRotate();
+	void trySelect(bool clicked);
 	void WhenTranslate();
 	void Motion();
 	
@@ -27,13 +28,13 @@ public:
 
 	void UpdatePosition( float xpos, float ypos);
 private:
+	int selected;
 	unsigned int counter;
 	unsigned int tmp;
 	float x, y;
 	float prevX, prevY;
-	float xOffset, yOffset;
+	float xOffset, yOffset, zOffset;
 	float p, z;
-	float pW;
 	glm::vec4 eye; 
 	glm::vec4 ambient;
 	glm::ivec4 sizes;
