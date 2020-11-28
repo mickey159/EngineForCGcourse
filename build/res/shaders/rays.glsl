@@ -154,30 +154,7 @@ vec3 colorCalc(vec3 intersectionPoint){
     return clamp(color, 0, 1);;
 }
 
-vec3 calcColor2(vec3 intersectionPoint, vec3 inV, vec3 N){
-	vec3 color = vec3(0,0,0);
-	vec3 V = reflect(normalize(inV), normalize(N));
-	float t = 0; //intersection(intersectionPoint, V, -1);
-	if (t > 0.0){
-		vec3 hit = intersectionPoint + t * V;
-		int index = getIntersectingObj(V, hit);
-		vec3 N = normalize(objects[index].w < 0.0 ? objects[index].xyz : (objects[index].xyz -hit));
-		bool sq = mod(int(1.5 * hit.x + 100), 2) == mod(int(1.5 * hit.y + 100), 2);
-		vec3 Kd = objColors[index].xyz;
-//		for (int i = 0; i < sizes[1]; i++) {
-//			vec3 c = Kd * calcLight(N, lightsDirection[i].xyz, lightsIntensity[i].xyz, 
-//				V, objColors[index].w, objects[index].w < 0 && sq ? 1/2 : 1);
-//			if (lightsDirection[i].w == 1.0 ){
-//				if(calcspotlight(hit, lightPosition[i].xyz, lightsDirection[i].xyz, lightPosition[i].w)) {
-//					color += c/2;
-//				}
-//			}
-//			else if (!shadow(lightsDirection[i].w == 1.0, hit, index, i))
-//				color += c;
-//		}
-	}
-	return color;
-}
+
 
 void main()
 {  
