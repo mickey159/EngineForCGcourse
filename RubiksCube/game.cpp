@@ -27,34 +27,17 @@ void Game::Init()
 	unsigned int slots[3] = { 0 , 1, 0 };
 	
 	AddShader("../res/shaders/pickingShader");	
-	AddShader("../res/shaders/basicShader2");
 	AddShader("../res/shaders/basicShader");
-	
-	AddTexture("../res/textures/box0.bmp",2);
-	//AddTexture("../res/textures/grass.bmp", 2);
-	TextureDesine(800, 800);
+	AddTexture("../res/textures/box0.bmp", 2);
+	AddMaterial(texIDs, slots, 1);
+	//TextureDesine(800, 800);
 
-	AddMaterial(texIDs,slots, 2);
-	AddMaterial(texIDs+1,slots+1, 2);
 	AddShape(Cube, -1, TRIANGLES);
-	AddShape(Cube, -1, TRIANGLES);
-	AddShape(Plane, -1, TRIANGLES);
-	AddShapeViewport(2, 1);
-	RemoveShapeViewport(2, 0);
-	SetShapeShader(2, 2);
+	SetShapeShader(0, 1);
+	
 
 	pickedShape = 0;
-	SetShapeMaterial(0, 0);
 	ShapeTransformation(xTranslate, -1);
-
-	pickedShape = 1;
-	ShapeTransformation(xTranslate, 1);
-	SetShapeMaterial(1, 1);
-	pickedShape = -1;
-
-	pickedShape = 2;
-	SetShapeMaterial(2, 2);
-	pickedShape = -1;
 	
 	//ReadPixel(); //uncomment when you are reading from the z-buffer
 }
@@ -67,7 +50,7 @@ void Game::Update(const glm::mat4 &MVP,const glm::mat4 &Model,const int  shaderI
 	int b = ((pickedShape+1) & 0x00FF0000) >> 16;
 	if (shapes[pickedShape]->GetMaterial() >= 0 && !materials.empty())
 		BindMaterial(s, shapes[pickedShape]->GetMaterial());
-	//textures[0]->Bind(0);
+	textures[0]->Bind(0);
 	s->Bind();
 	if (shaderIndx != 2)
 	{
@@ -110,8 +93,8 @@ unsigned int Game::TextureDesine(int width, int height)
 		{
 			data[(i * height + j) * 4] = (i + j) % 256;
 			data[(i * height + j) * 4 + 1] = (i + j * 2) % 256;
-			data[(i * height + j) * 4 + 2] = (i * 2 + j) % 256;
-			data[(i * height + j) * 4 + 3] = (i * 3 + j) % 256;
+			data[(i * height + j) * 4 + 2] = 0;
+			data[(i * height + j) * 4 + 3] = 0;
 		}
 	}
 	textures.push_back(new Texture(width, height));

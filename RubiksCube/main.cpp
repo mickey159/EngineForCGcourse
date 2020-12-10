@@ -3,17 +3,17 @@
 
 int main(int argc,char *argv[])
 {
-	const int DISPLAY_WIDTH = 1600;
-	const int DISPLAY_HEIGHT = 800;
+	const int DISPLAY_WIDTH = 840;
+	const int DISPLAY_HEIGHT = 840;
+
 	const float CAMERA_ANGLE = 60.0f;
 	const float NEAR = 1.0f;
 	const float FAR = 100.0f;
 	const int infoIndx = 2; 
 	std::list<int> x, y;
-	x.push_back(DISPLAY_WIDTH / 2);
-	//y.push_back(DISPLAY_HEIGHT / 2);
-	Display display(DISPLAY_WIDTH, DISPLAY_HEIGHT, "OpenGL");
-	Renderer* rndr = new Renderer(CAMERA_ANGLE, (float)DISPLAY_WIDTH / 2 / DISPLAY_HEIGHT, NEAR, FAR); // adding a camera
+
+	Display display(DISPLAY_WIDTH, DISPLAY_HEIGHT, "Rubik's Cube");
+	Renderer* rndr = new Renderer(CAMERA_ANGLE, (float)DISPLAY_WIDTH / DISPLAY_HEIGHT, NEAR, FAR); // adding a camera
 	Game *scn = new Game();  //initializing scene
 	
 	Init(display); //adding callback functions
