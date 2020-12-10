@@ -190,6 +190,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <Project>{BE39650E-4BB7-35D7-97AD-15E3647229F5}</Project>
       <Name>Rays</Name>
     </ProjectReference>
+    <ProjectReference Include="C:\Users\iam_T\OneDrive\שולחן העבודה\uni-staff\homework\graphics\EngineForCGcourse\build\RubiksCube\RubiksCube.vcxproj">
+      <Project>{1A71DBE4-8F14-3C6D-93F6-4B5E77C9F9E5}</Project>
+      <Name>RubiksCube</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

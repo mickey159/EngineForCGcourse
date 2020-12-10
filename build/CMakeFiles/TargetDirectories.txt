@@ -7,3 +7,5 @@ C:/Users/iam_T/OneDrive/שולחן העבודה/uni-staff/homework/graphics/Engi
 C:/Users/iam_T/OneDrive/שולחן העבודה/uni-staff/homework/graphics/EngineForCGcourse/build/MandelBrot/CMakeFiles/ALL_BUILD.dir
 C:/Users/iam_T/OneDrive/שולחן העבודה/uni-staff/homework/graphics/EngineForCGcourse/build/Rays/CMakeFiles/Rays.dir
 C:/Users/iam_T/OneDrive/שולחן העבודה/uni-staff/homework/graphics/EngineForCGcourse/build/Rays/CMakeFiles/ALL_BUILD.dir
+C:/Users/iam_T/OneDrive/שולחן העבודה/uni-staff/homework/graphics/EngineForCGcourse/build/RubiksCube/CMakeFiles/RubiksCube.dir
+C:/Users/iam_T/OneDrive/שולחן העבודה/uni-staff/homework/graphics/EngineForCGcourse/build/RubiksCube/CMakeFiles/ALL_BUILD.dir

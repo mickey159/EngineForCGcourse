@@ -35,7 +35,7 @@ void Rays::Init()
 {		
 	unsigned int texIDs[3] = { 0 , 1, 0 };
 	unsigned int slots[3] = { 0 , 1, 0 };
-	std::string str = "../res/scenes/scene4.txt";
+	std::string str = "../res/scenes/scene5.txt";
 	SceneData myScene;
 	SceneParser(str, &myScene);
 
@@ -222,10 +222,6 @@ void Rays::WhenTranslate(){
 		objects[selected].y += (y - prevY)* 2 * pW;
 	}
 }
-// to tamir:
-//1. picking is ok?
-//2. scene 4 and 1 spotlight
-//4. specular is weired
 
 void Rays::Motion()
 {
