@@ -94,13 +94,13 @@ bool shadow(bool spotLight, vec4 hit, int light) {
 	return false;
 }
 vec3 calcLight(int light, vec3 N, vec3 V, vec4 hit, float n, bool checkered){
-	vec3 D = lightsDirection[light].xyz;
-	float Kd = (checkered ? 0.5 : 1) * calcdiffuse(N, D);
-	float Ks =  2 * calcspecular(N, D, V, n);
-	vec3 color = (Kd + Ks) * lightsIntensity[light].xyz;
+	vec3 D = lightsDirection[light].w ==0.0 ? lightsDirection[light].xyz: (hit.xyz - lightPosition[light].xyz);
+	float Kd = calcdiffuse(N, D);
+	float Ks = calcspecular(N, D, V, n);
+	vec3 color = (checkered ? 0.5 : 1) *  (Kd + Ks) * lightsIntensity[light].xyz;
 	if(!shadow(lightsDirection[light].w == 1.0, hit, light)){
 		if (lightsDirection[light].w == 1.0 && 
-			!calcspotlight(lightPosition[light], D, hit.xyz)){} //spotlight but point not affected
+			!calcspotlight(lightPosition[light], lightsDirection[light].xyz, hit.xyz)){} //spotlight but point not affected
 		else
 			return color;
 	}
