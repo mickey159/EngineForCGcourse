@@ -2,6 +2,7 @@
 #include "display.h"
 #include "renderer.h"
 #include "game.h"
+#include <iostream>
 
 
 	void mouse_callback(GLFWwindow* window,int button, int action, int mods)
@@ -13,8 +14,10 @@
 			Game* scn = (Game*)rndr->GetScene();
 			double x2,y2;
 			glfwGetCursorPos(window,&x2,&y2);
-			if (rndr->Picking((int)x2, (int)y2))
-				rndr->UpdatePosition(x2,y2);
+			if (rndr->Picking((int)x2, (int)y2)) {
+				rndr->UpdatePosition(x2, y2);
+				std::cout << "pick" << std::endl;
+			}
 		}
 	}
 	
