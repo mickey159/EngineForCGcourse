@@ -28,7 +28,7 @@ void Game::Init()
 	unsigned int slots[3] = { 0 , 1, 0 };
 	
 	AddShader("../res/shaders/pickingShader2");	
-	AddShader("../res/shaders/basicShader");
+	AddShader("../res/shaders/basicShader2");
 	
 	TextureDesine(840, 840);
 	float center = (cubeSize - 1.0) / 2.0;
@@ -51,7 +51,7 @@ void Game::Init()
 	//ReadPixel(); //uncomment when you are reading from the z-buffer
 }
 
-void Game::Update(const glm::mat4 &MVP,const glm::mat4 &Model,const int  shaderIndx)
+void Game::Update(const glm::mat4 &MVP,const glm::mat4 &Model,const int shaderIndx)
 {
 	Shader *s = shaders[shaderIndx];
 	int r = ((pickedShape+1) & 0x000000FF) >>  0;
@@ -63,14 +63,15 @@ void Game::Update(const glm::mat4 &MVP,const glm::mat4 &Model,const int  shaderI
 	s->Bind();
 	if (shaderIndx != 2)
 	{
-		s->SetUniformMat4f("MVP", MVP);
-		s->SetUniformMat4f("Normal", Model);
+		s->SetUniformMat4f("View", MVP);
+		s->SetUniformMat4f("Model", Model);
 	}
 	else
 	{
-		s->SetUniformMat4f("MVP", glm::mat4(1));
-		s->SetUniformMat4f("Normal", glm::mat4(1));
+		s->SetUniformMat4f("View", glm::mat4(1));
+		s->SetUniformMat4f("Model", glm::mat4(1));
 	}
+	s->SetUniformMat4f("Proj", glm::mat4(1));
 	s->SetUniform1i("sampler1", materials[shapes[pickedShape]->GetMaterial()]->GetSlot(0));
 	if(shaderIndx!=2)
 		s->SetUniform1i("sampler2", materials[shapes[pickedShape]->GetMaterial()]->GetSlot(1));
