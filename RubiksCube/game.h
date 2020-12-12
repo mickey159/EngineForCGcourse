@@ -15,5 +15,8 @@ public:
 	
 	unsigned int TextureDesine(int width, int height);
 	~Game(void);
+
+private:
+	int cubeSize;
 };
 
