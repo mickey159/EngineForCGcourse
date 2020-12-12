@@ -15,7 +15,7 @@ static void printMat(const glm::mat4 mat)
 
 Game::Game() : Scene()
 {
-	cubeSize = 2;
+	cubeSize = 1;
 }
 
 //Game::Game(float angle ,float relationWH, float near, float far) : Scene(angle,relationWH,near,far)
