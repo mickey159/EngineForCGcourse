@@ -86,8 +86,9 @@ void Scene::Draw(int shaderIndx, const glm::mat4& MVP, int viewportIndx, unsigne
 {
 	glm::mat4 Normal = MakeTrans();
 
-	int p = pickedShape;
+	ReadOperation();
 
+	int p = pickedShape;
 	for (pickedShape = 0; pickedShape < shapes.size(); pickedShape++)
 	{
 		if (shapes[pickedShape]->Is2Render(viewportIndx))
@@ -167,6 +168,10 @@ void Scene::MouseProccessing(int button, int xrel, int yrel)
 	}
 	else
 	{
+
+		//ShapeTransformation(xRotate, -xrel / 2.0f);
+		//ShapeTransformation(yRotate, -yrel / 2.0f);
+		pickedShape = -1;
 		MyRotate(-xrel / 2.0f, glm::vec3(0, 1, 0), 0);
 		MyRotate(-yrel / 2.0f, glm::vec3(1, 0, 0), 1);
 		WhenRotate();

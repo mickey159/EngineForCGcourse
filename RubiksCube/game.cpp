@@ -15,7 +15,10 @@ static void printMat(const glm::mat4 mat)
 
 Game::Game() : Scene()
 {
-	cubeSize = 1;
+	cubeSize = 3;
+	animSpeed = 1;
+	isRotateClockWise = true;
+	cubesIndexs[cubeSize * cubeSize * cubeSize];
 }
 
 //Game::Game(float angle ,float relationWH, float near, float far) : Scene(angle,relationWH,near,far)
@@ -36,11 +39,11 @@ void Game::Init()
 		for (int j = 0; j < cubeSize; j++) {
 			for (int k = 0; k < cubeSize; k++) {
 				AddShape(Cube, -1, TRIANGLES);
-				
 				pickedShape = i*cubeSize*cubeSize + j*cubeSize + k;
 				ShapeTransformation(xTranslate, 2 * (k - center));
 				ShapeTransformation(yTranslate, 2 * (j - center));
 				ShapeTransformation(zTranslate, 2 * (i - center));
+				cubesIndexs[pickedShape] = pickedShape;
 			}
 		}
 	}
@@ -92,6 +95,119 @@ void Game::Motion()
 	if(isActive)
 	{
 	}
+}
+
+void Game::UpdateAnimationSpeed(int change) {
+	animSpeed += change;
+	if (animSpeed < 1)
+		animSpeed = 1;
+	else if (animSpeed > 18)
+		animSpeed = 18;
+}
+
+void Game::toggleRotationDir() {
+	isRotateClockWise = !isRotateClockWise;
+}
+
+std::vector<int> getIndexes(int type, int cubeSize, int cubeIndexs []) {
+	std::vector<int> indexs;
+	switch (type) {
+		case 1: //right
+			for (int i = 0; i < cubeSize * cubeSize; i++) {
+				indexs.push_back(cubeSize * i + (cubeSize -1));
+			}
+			break;
+		case 2: //left
+			for (int i = 0; i < cubeSize * cubeSize; i++) {
+				indexs.push_back(cubeSize * i);
+			}
+			break;
+		case 3: //up
+			for (int i = 0; i < cubeSize; i++) {
+				int index = i * cubeSize * cubeSize + (cubeSize - 1) * cubeSize;
+				for (int j = 0; j < cubeSize; j++) {
+					indexs.push_back(index + j);
+				}
+			}
+			break;
+		case 4: //down
+			for (int i = 0; i < cubeSize; i++) {
+				int index = i * cubeSize * cubeSize;
+				for (int j = 0; j < cubeSize; j++) {
+					indexs.push_back(index + j);
+				}
+			}
+			break;
+		default:
+			break;
+	}
+	return indexs;
+}
+
+void Game::AddOp(int op) {
+	Operation op1;
+	op1.type = op;
+	if (op == 0) { // change rotation direction
+		operations.push(op1);
+	}
+	else {
+		op1.indexs = getIndexes(op, cubeSize, cubesIndexs); // [cubeSize * cubeSize] ;
+		int t = op1.indexs[cubeSize * cubeSize - 1];
+		for (int i = cubeSize * cubeSize -1; i > 0; i--) {
+			cubesIndexs[op1.indexs[i]] = cubesIndexs[op1.indexs[i-1]];
+		}
+		cubesIndexs[op1.indexs[0]] = t;
+		for (int i = 0; i < 90 / animSpeed; i++) {
+			operations.push(op1);
+		}
+	}
+}
+
+void Game::ReadOperation() {
+	if (operations.empty())
+		return;
+	Operation op = operations.front();
+	operations.pop();
+	if (op.type == 0)
+		toggleRotationDir();
+	else
+		RotateWall(op.type, op.indexs);
+}
+
+void Game::RotateWall(int type, std::vector<int> indexs) {
+	for (int i = 0; i < cubeSize * cubeSize; i++) {
+		pickedShape = indexs[i];
+		if(type < 3)
+			ShapeTransformation(xRotate, 1);
+		else
+			ShapeTransformation(yRotate, 1);
+	}
+	pickedShape = -1;
+}
+
+void Game::RotateUpWall() {
+	int t = cubesIndexs[cubeSize * cubeSize * cubeSize -1];
+	for (int i = 0; i < cubeSize; i++) {
+		int index = i * cubeSize * cubeSize + (cubeSize - 1) * cubeSize; // side + currRow
+		for (int j = 0; j < cubeSize; j++) {
+			pickedShape = cubesIndexs[index + j];
+			ShapeTransformation(yRotate, 1);
+			//cubesIndexs[index + j] = t;
+			t = pickedShape;
+		}
+	}
+	pickedShape = -1;
+}
+
+void Game::RotateLeftWall() {
+	int t = cubesIndexs[cubeSize * (cubeSize * cubeSize - 1)];
+	for (int i = 0; i < cubeSize * cubeSize; i++) {
+		pickedShape = cubesIndexs[cubeSize * i];
+		ShapeTransformation(xRotate, 1);
+		//cubesIndexs[cubeSize * i] = t;
+		t = pickedShape;
+	}
+	pickedShape = -1;
 }
 
 unsigned int Game::TextureDesine(int width, int height)

@@ -83,7 +83,33 @@
 				//cout<< "down: "<<endl;
 				rndr->MoveCamera(0, scn->zTranslate, -0.4f);
 				break;
-
+			case GLFW_KEY_R: // push right wall rot animation
+				scn->AddOp(1);
+				break; 
+			case GLFW_KEY_L: // push left wall rot animation
+				scn->AddOp(2);
+				break; 
+			case GLFW_KEY_U: // push up wall rot animation
+				scn->AddOp(3);
+				break; 
+			case GLFW_KEY_D: // push down wall rot animation
+				scn->AddOp(4);
+				break; 
+			case GLFW_KEY_B: // push back wall rot animation
+				scn->AddOp(5);
+				break; 
+			case GLFW_KEY_F: // push front wall rot animation
+				scn->AddOp(6);
+				break;
+			// '' key? flip direction
+			case GLFW_KEY_Z:
+				scn->UpdateAnimationSpeed(1);
+				break;
+			case GLFW_KEY_A:
+				scn->UpdateAnimationSpeed(-1);
+				break;
+			case GLFW_KEY_M:
+				break; // mix random 10 rotations
 			default:
 				break;
 			}

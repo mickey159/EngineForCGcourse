@@ -5,7 +5,18 @@
 #include "VertexArray.hpp"
 #include "Material.h"
 #include <vector>
+#include <queue>
 
+struct Operation
+{
+	int type;
+	std::vector<int> indexs;
+};
+
+struct Cube
+{
+	unsigned int index;
+};
 
 class Scene : public MovableGLM
 {
@@ -37,6 +48,7 @@ public:
 	virtual void Motion() {};
 	virtual void Reset() {};
 	virtual void Draw(int shaderIndx, const glm::mat4& MVP, int viewportIndx, unsigned int flags);
+	virtual void ReadOperation() {};
 	virtual ~Scene(void);
 
 	void ShapeTransformation(int type, float amt);
@@ -71,7 +83,7 @@ protected:
 	std::vector<int> chainParents;
 	std::vector<Texture*> textures;
 	std::vector<Material*> materials;
-
+	std::queue<Operation> operations;
 	int pickedShape;
 
 	bool isActive;
