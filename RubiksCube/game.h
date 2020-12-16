@@ -6,10 +6,11 @@
 class Game : public Scene
 {
 public:
-	
+
 	Game();
 	void Init();
-	void Update(const glm::mat4 &MVP,const glm::mat4 &Model,const int  shaderIndx);
+	void Update(const glm::mat4& MVP, const glm::mat4& Model, const int  shaderIndx);
+	void AddOperation(int operation);
 	void ReadOperation();
 
 	void WhenRotate();
@@ -17,24 +18,19 @@ public:
 	void Motion();
 
 	void UpdateAnimationSpeed(int change);
-
 	void toggleRotationDir();
+	void addRotation(int faceDirection, int faceIndex);
+	void rotateWall(int type, std::vector<int> indexs);
+	void WhenPicked();
 
-	void AddOp(int op);
-
-	void RotateWall(int type, std::vector<int> indexs);
-
-	void RotateUpWall();
-
-	void RotateLeftWall();
-	
 	unsigned int TextureDesine(int width, int height);
 	~Game(void);
 
 private:
 	int cubeSize;
 	int animSpeed;
+	float currFrame;
 	bool isRotateClockWise;
-	Cube[] cubesIndexs;
+	std::vector<int> cubesIndexs;
 };
 

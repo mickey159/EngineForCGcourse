@@ -2,6 +2,8 @@
 #include <iostream>
 #include "GL/glew.h"
 
+int MAX_ANIMATIONS = 20;
+int TOTAL_FRAMES = 90;
 static void printMat(const glm::mat4 mat)
 {
 	std::cout<<" matrix:"<<std::endl;
@@ -12,19 +14,35 @@ static void printMat(const glm::mat4 mat)
 		std::cout<<std::endl;
 	}
 }
-
+void printFace(int cubeSize, std::vector<int> Cube) {
+	for (int i = 0; i < cubeSize; i++) {
+		for (int j = 0; j < cubeSize; j++)
+			std::cout << Cube[(cubeSize - i - 1) * cubeSize + j] << " ";
+		std::cout << std::endl;
+	}
+}
+void printCube(int cubeSize, std::vector<int> Cube) {
+	std::cout << "cube" << std::endl;
+	for (int i = 0; i < cubeSize; i++) {
+		for (int k = 0; k < cubeSize; k++) {
+			for (int j = 0; j < cubeSize; j++)
+				std::cout << Cube[k * cubeSize * cubeSize + (cubeSize - i - 1) * cubeSize + j] << " ";
+			std::cout << "|";
+		}
+		std::cout << std::endl;
+	}
+}
 Game::Game() : Scene()
 {
-	cubeSize = 3;
+	cubeSize = 5;
 	animSpeed = 1;
+	currFrame = 0;
 	isRotateClockWise = true;
-	cubesIndexs[cubeSize * cubeSize * cubeSize];
 }
 
 //Game::Game(float angle ,float relationWH, float near, float far) : Scene(angle,relationWH,near,far)
 //{ 	
 //}
-
 void Game::Init()
 {		
 	unsigned int texIDs[3] = { 0 , 1, 0};
@@ -43,10 +61,13 @@ void Game::Init()
 				ShapeTransformation(xTranslate, 2 * (k - center));
 				ShapeTransformation(yTranslate, 2 * (j - center));
 				ShapeTransformation(zTranslate, 2 * (i - center));
-				cubesIndexs[pickedShape] = pickedShape;
+				
+				cubesIndexs.push_back(pickedShape);
 			}
 		}
 	}
+	UpdateAnimationSpeed(0);
+	printCube(cubeSize, cubesIndexs);
 	
 	pickedShape = -1;
 	SetShapeShader(0, 1);
@@ -81,15 +102,12 @@ void Game::Update(const glm::mat4 &MVP,const glm::mat4 &Model,const int shaderIn
 	s->SetUniform4f("lightColor", r, g, b, 0.0f);
 	s->Unbind();
 }
-
 void Game::WhenRotate()
 {
 }
-
 void Game::WhenTranslate()
 {
 }
-
 void Game::Motion()
 {
 	if(isActive)
@@ -97,44 +115,40 @@ void Game::Motion()
 	}
 }
 
+void Game::toggleRotationDir() {
+	isRotateClockWise = !isRotateClockWise;
+}
 void Game::UpdateAnimationSpeed(int change) {
 	animSpeed += change;
 	if (animSpeed < 1)
 		animSpeed = 1;
-	else if (animSpeed > 18)
-		animSpeed = 18;
+	else if (animSpeed > MAX_ANIMATIONS)
+		animSpeed = MAX_ANIMATIONS;
+	std::cout << "animationSpeed " << animSpeed << std::endl;
 }
 
-void Game::toggleRotationDir() {
-	isRotateClockWise = !isRotateClockWise;
-}
-
-std::vector<int> getIndexes(int type, int cubeSize, int cubeIndexs []) {
+std::vector<int> getFaceIndexes(int cubeSize, int direction, int faceIndex){
 	std::vector<int> indexs;
-	switch (type) {
-		case 1: //right
+	switch (direction) {
+		case 0: //col
 			for (int i = 0; i < cubeSize * cubeSize; i++) {
-				indexs.push_back(cubeSize * i + (cubeSize -1));
+				indexs.push_back(cubeSize * i + faceIndex);
 			}
 			break;
-		case 2: //left
-			for (int i = 0; i < cubeSize * cubeSize; i++) {
-				indexs.push_back(cubeSize * i);
-			}
-			break;
-		case 3: //up
-			for (int i = 0; i < cubeSize; i++) {
-				int index = i * cubeSize * cubeSize + (cubeSize - 1) * cubeSize;
-				for (int j = 0; j < cubeSize; j++) {
+		case 1: //row
+			for (int j = cubeSize - 1; j >= 0; j--) {
+				for (int i = cubeSize - 1; i >= 0; i--) {
+					int index = i * cubeSize * cubeSize +
+						faceIndex * cubeSize;
 					indexs.push_back(index + j);
 				}
 			}
 			break;
-		case 4: //down
-			for (int i = 0; i < cubeSize; i++) {
-				int index = i * cubeSize * cubeSize;
-				for (int j = 0; j < cubeSize; j++) {
-					indexs.push_back(index + j);
+		case 2: // the 3rd options
+			for (int j = cubeSize - 1; j >= 0; j--) {
+				for (int i = cubeSize - 1; i >= 0; i--) {
+					int index = faceIndex * cubeSize * cubeSize;
+					indexs.push_back(index + i*cubeSize + j);
 				}
 			}
 			break;
@@ -143,73 +157,107 @@ std::vector<int> getIndexes(int type, int cubeSize, int cubeIndexs []) {
 	}
 	return indexs;
 }
-
-void Game::AddOp(int op) {
-	Operation op1;
-	op1.type = op;
-	if (op == 0) { // change rotation direction
-		operations.push(op1);
+std::vector<int> rotatedFaceIndexes(int cubeSize, bool isClockWise) {
+	std::vector<int> newPositions;
+	if (isClockWise) {
+		for (int i = 0; i < cubeSize; i++) { //col
+			for (int j = cubeSize - 1; j >= 0; j--) { //row
+				newPositions.push_back(j * cubeSize + i);
+			}
+		}
 	}
 	else {
-		op1.indexs = getIndexes(op, cubeSize, cubesIndexs); // [cubeSize * cubeSize] ;
-		int t = op1.indexs[cubeSize * cubeSize - 1];
-		for (int i = cubeSize * cubeSize -1; i > 0; i--) {
-			cubesIndexs[op1.indexs[i]] = cubesIndexs[op1.indexs[i-1]];
-		}
-		cubesIndexs[op1.indexs[0]] = t;
-		for (int i = 0; i < 90 / animSpeed; i++) {
-			operations.push(op1);
+		for (int j = cubeSize - 1; j >= 0; j--) { //row
+			for (int i = 0; i < cubeSize; i++) { //col
+				newPositions.push_back(i * cubeSize + j);
+			}
 		}
 	}
+	return newPositions;
 }
 
+void Game::addRotation(int faceDirection, int faceIndex) {
+	std::vector<int> pointers = getFaceIndexes(cubeSize, faceDirection, faceIndex);
+	std::vector<int> positions = rotatedFaceIndexes(cubeSize, isRotateClockWise);
+	std::vector<int> values;
+	for (int i = 0; i < cubeSize * cubeSize; i++) {
+		values.push_back(cubesIndexs[pointers[i]]);
+	}
+	for (int i = 0; i < cubeSize * cubeSize; i++) {
+		cubesIndexs[pointers[i]] = values[positions[i]];
+	}
+	
+	Operation operation;
+	operation.type = faceDirection;
+	operation.indexs = values;
+	printCube(cubeSize, cubesIndexs);
+	for (int i = 0; i < 90 / animSpeed; i++) {
+		operations.push(operation);
+	}
+}
+void Game::AddOperation(int operation) {
+	Operation op;
+	if (operation < 6) {
+		op.type = operation / 2;
+		std::vector<int> pointers = getFaceIndexes(cubeSize, op.type, (operation % 2) * (cubeSize - 1));
+		std::vector<int> positions = rotatedFaceIndexes(cubeSize, isRotateClockWise);
+		std::vector<int> values;
+		for (int i = 0; i < cubeSize * cubeSize; i++) {
+			values.push_back(cubesIndexs[pointers[i]]);
+		}
+		for (int i = 0; i < cubeSize * cubeSize; i++) {
+			cubesIndexs[pointers[i]] = values[positions[i]];
+		}
+		op.indexs = values;
+		printCube(cubeSize, cubesIndexs);
+	}//rotation
+	else {
+		op.type = operation - 3;
+	} //others
+	operations.push(op);
+}
 void Game::ReadOperation() {
 	if (operations.empty())
 		return;
 	Operation op = operations.front();
+	if (op.type < 3)
+		return rotateWall(op.type, op.indexs);
 	operations.pop();
-	if (op.type == 0)
+	if(op.type == 3)
 		toggleRotationDir();
 	else
-		RotateWall(op.type, op.indexs);
+		UpdateAnimationSpeed((op.type - 4.5)*4);
 }
+void Game::rotateWall(int type, std::vector<int> indexs) {
+	currFrame += animSpeed;
+	float amount = (isRotateClockWise ? 1 : -1);
+	if (currFrame >= TOTAL_FRAMES) {
+		amount *= (TOTAL_FRAMES + animSpeed - currFrame);
+		operations.pop();
+		currFrame = 0;
+	}
+	else
+		amount *= animSpeed;
 
-void Game::RotateWall(int type, std::vector<int> indexs) {
 	for (int i = 0; i < cubeSize * cubeSize; i++) {
 		pickedShape = indexs[i];
-		if(type < 3)
-			ShapeTransformation(xRotate, 1);
-		else
-			ShapeTransformation(yRotate, 1);
-	}
-	pickedShape = -1;
-}
-
-void Game::RotateUpWall() {
-	int t = cubesIndexs[cubeSize * cubeSize * cubeSize -1];
-	for (int i = 0; i < cubeSize; i++) {
-		int index = i * cubeSize * cubeSize + (cubeSize - 1) * cubeSize; // side + currRow
-		for (int j = 0; j < cubeSize; j++) {
-			pickedShape = cubesIndexs[index + j];
-			ShapeTransformation(yRotate, 1);
-			//cubesIndexs[index + j] = t;
-			t = pickedShape;
+		switch (type) {
+			case 0:
+				ShapeTransformation(xRotate, amount);
+				break;
+			case 1:
+				ShapeTransformation(yRotate, amount);
+				break;
+			case 2:
+				ShapeTransformation(zRotate, -amount);
+				break;
 		}
 	}
-	pickedShape = -1;
 }
 
-void Game::RotateLeftWall() {
-	int t = cubesIndexs[cubeSize * (cubeSize * cubeSize - 1)];
-	for (int i = 0; i < cubeSize * cubeSize; i++) {
-		pickedShape = cubesIndexs[cubeSize * i];
-		ShapeTransformation(xRotate, 1);
-		//cubesIndexs[cubeSize * i] = t;
-		t = pickedShape;
-	}
-	pickedShape = -1;
+void Game::WhenPicked() {
+	
 }
-
 unsigned int Game::TextureDesine(int width, int height)
 {
 	unsigned char* data = new unsigned char[width * height * 4];

@@ -3,6 +3,7 @@
 #include "renderer.h"
 #include "game.h"
 #include <iostream>
+#include <random>
 
 
 	void mouse_callback(GLFWwindow* window,int button, int action, int mods)
@@ -27,7 +28,7 @@
 		Game* scn = (Game*)rndr->GetScene();
 
 		scn->MyTranslate(glm::vec3(0,0,xoffset),0);
-		
+		rndr->MoveCamera(0, scn->zTranslate, -0.4f*yoffset);
 	}
 	
 	void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
@@ -69,47 +70,47 @@
 				glfwSetWindowShouldClose(window, GLFW_TRUE);
 				break;
 			case GLFW_KEY_SPACE:
-				if (scn->IsActive())
+				scn->AddOperation(6);
+				/*if (scn->IsActive())
 					scn->Deactivate();
 				else
-					scn->Activate();
+					scn->Activate();*/
 				break;
 
 			case GLFW_KEY_UP:
 				rndr->MoveCamera(0, scn->zTranslate, 0.4f);
 				break;
 			case GLFW_KEY_DOWN:
-				//scn->shapeTransformation(scn->xGlobalRotate,-5.f);
-				//cout<< "down: "<<endl;
 				rndr->MoveCamera(0, scn->zTranslate, -0.4f);
 				break;
 			case GLFW_KEY_R: // push right wall rot animation
-				scn->AddOp(1);
+				scn->AddOperation(1);
 				break; 
 			case GLFW_KEY_L: // push left wall rot animation
-				scn->AddOp(2);
+				scn->AddOperation(0);
 				break; 
 			case GLFW_KEY_U: // push up wall rot animation
-				scn->AddOp(3);
+				scn->AddOperation(3);
 				break; 
 			case GLFW_KEY_D: // push down wall rot animation
-				scn->AddOp(4);
+				scn->AddOperation(2);
 				break; 
 			case GLFW_KEY_B: // push back wall rot animation
-				scn->AddOp(5);
+				scn->AddOperation(4);
 				break; 
 			case GLFW_KEY_F: // push front wall rot animation
-				scn->AddOp(6);
+				scn->AddOperation(5);
 				break;
-			// '' key? flip direction
 			case GLFW_KEY_Z:
-				scn->UpdateAnimationSpeed(1);
+				scn->AddOperation(8);
 				break;
 			case GLFW_KEY_A:
-				scn->UpdateAnimationSpeed(-1);
+				scn->AddOperation(7);
 				break;
-			case GLFW_KEY_M:
-				break; // mix random 10 rotations
+			case GLFW_KEY_M: // mix random 10 rotations
+				for(int i=0; i < 10; i++)
+					scn->AddOperation(rand() % 6);
+				break;
 			default:
 				break;
 			}
