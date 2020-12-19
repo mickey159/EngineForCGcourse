@@ -85,7 +85,7 @@ protected:
 	std::vector<Material*> materials;
 	std::queue<Operation> operations;
 	int pickedShape;
-
+	int pickedShapeNormalMax;
 	bool isActive;
 };
 

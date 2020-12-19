@@ -34,7 +34,7 @@ void printCube(int cubeSize, std::vector<int> Cube) {
 }
 Game::Game() : Scene()
 {
-	cubeSize = 5;
+	cubeSize = 3; //maximum of six because code support up to 255 cubes in total
 	animSpeed = 1;
 	currFrame = 0;
 	isRotateClockWise = true;
@@ -99,9 +99,10 @@ void Game::Update(const glm::mat4 &MVP,const glm::mat4 &Model,const int shaderIn
 	s->SetUniform1i("sampler1", materials[shapes[pickedShape]->GetMaterial()]->GetSlot(0));
 	if(shaderIndx!=2)
 		s->SetUniform1i("sampler2", materials[shapes[pickedShape]->GetMaterial()]->GetSlot(1));
-	s->SetUniform4f("lightColor", r, g, b, 0.0f);
+	s->SetUniform4f("lightColor", r / 255.0, 0, 0, 0);
 	s->Unbind();
 }
+
 void Game::WhenRotate()
 {
 }
@@ -191,9 +192,7 @@ void Game::addRotation(int faceDirection, int faceIndex) {
 	operation.type = faceDirection;
 	operation.indexs = values;
 	printCube(cubeSize, cubesIndexs);
-	for (int i = 0; i < 90 / animSpeed; i++) {
-		operations.push(operation);
-	}
+	operations.push(operation);
 }
 void Game::AddOperation(int operation) {
 	Operation op;
@@ -256,7 +255,31 @@ void Game::rotateWall(int type, std::vector<int> indexs) {
 }
 
 void Game::WhenPicked() {
-	
+	std::vector<int>::iterator itr = std::find(cubesIndexs.begin(), cubesIndexs.end(), pickedShape);
+	if (itr != cubesIndexs.cend()) {
+		int cubeIndex = std::distance(cubesIndexs.begin(), itr);
+		std::cout << pickedShape << " present at index " << cubeIndex << std::endl;
+		int faceIndex = cubeIndex / (cubeSize * cubeSize);
+		cubeIndex -= faceIndex * cubeSize * cubeSize;
+		int rowIndex = cubeIndex / cubeSize;
+		int colIndex = cubeIndex - rowIndex * cubeSize;
+		switch (pickedShapeNormalMax) {
+			case 0:
+				addRotation(1, rowIndex);
+				break;
+			case 1:
+				addRotation(0, colIndex);
+				break;
+			case 2:
+				addRotation(2, faceIndex);
+			default:
+				break;
+		}
+	}
+	else {
+		std::cout << "Element not found";
+	}
+	pickedShape = -1;
 }
 unsigned int Game::TextureDesine(int width, int height)
 {

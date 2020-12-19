@@ -19,6 +19,7 @@ Scene::Scene()
 	glLineWidth(5);
 
 	pickedShape = -1;
+	pickedShapeNormalMax = -1;
 	depth = 0;
 
 	isActive = false;
@@ -148,11 +149,17 @@ bool Scene::Picking(unsigned char data[4])
 		pickedShape = -1;
 		if (data[0] > 0) {
 			pickedShape = data[0] - 1;
-			std::cout << "val" << data[0] - 1 << "|" << data[1] << "|" << data[2] << "|" << data[3] << std::endl;
-			return true;
+			pickedShapeNormalMax = 2;
+			if (data[1] > data[2]) {
+				if (data[1] > data[3])
+					pickedShapeNormalMax = 0;
+			}
+			else if(data[2] > data[3])
+				pickedShapeNormalMax = 1;
+			
+			WhenPicked();
 		}
 		return false;
-		//WhenPicked();	
 }
 //return coordinates in global system for a tip of arm position is local system 
 void Scene::MouseProccessing(int button, int xrel, int yrel)
@@ -161,9 +168,9 @@ void Scene::MouseProccessing(int button, int xrel, int yrel)
 	//{
 	if (button == 1)
 	{
-		MyTranslate(glm::vec3(-xrel / 80.0f, 0, 0), 0);
-		MyTranslate(glm::vec3(0, yrel / 80.0f, 0), 0);
-		WhenTranslate();
+		//MyTranslate(glm::vec3(-xrel / 80.0f, 0, 0), 0);
+		//MyTranslate(glm::vec3(0, yrel / 80.0f, 0), 0);
+		//WhenTranslate();
 	}
 	else
 	{
