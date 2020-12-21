@@ -25,8 +25,10 @@ void printCube(int cubeSize, std::vector<int> Cube) {
 	std::cout << "cube" << std::endl;
 	for (int i = 0; i < cubeSize; i++) {
 		for (int k = 0; k < cubeSize; k++) {
-			for (int j = 0; j < cubeSize; j++)
-				std::cout << Cube[k * cubeSize * cubeSize + (cubeSize - i - 1) * cubeSize + j] << " ";
+			for (int j = 0; j < cubeSize; j++) {
+				int val = Cube[k * cubeSize * cubeSize + (cubeSize - i - 1) * cubeSize + j];
+				std::cout << ((val < 10) ? "0" + std::to_string(val) : std::to_string(val)) << " ";
+			}
 			std::cout << "|";
 		}
 		std::cout << std::endl;

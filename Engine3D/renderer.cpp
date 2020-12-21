@@ -29,7 +29,7 @@ void Renderer::Init(Scene* scene,  std::list<int>xViewport,  std::list<int>yView
 	MoveCamera(0, zTranslate, 10);
 	glm::ivec4 viewport;
 	glGetIntegerv(GL_VIEWPORT, &viewport[0]);
-	drawInfo.push_back(new DrawInfo(0, 0, 0, 0,   inAction | toClear | blackClear));
+	drawInfo.push_back(new DrawInfo(0, 0, 0, 0,   inAction | toClear | depthTest | blackClear));
 	buffers.push_back(new DrawBuffer());
 
 	if (xViewport.empty() && yViewport.empty())
