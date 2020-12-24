@@ -196,7 +196,7 @@ std::vector<int> rotatedFaceIndexes(int cubeSize, bool isClockWise) {
 
 void Game::addRotation(int faceDirection, int faceIndex) {
 	std::vector<int> pointers = getFaceIndexes(cubeSize, faceDirection, faceIndex);
-	std::vector<int> positions = rotatedFaceIndexes(cubeSize, faceDirection == 1 ? !isRotateClockWise : isRotateClockWise);
+	std::vector<int> positions = rotatedFaceIndexes(cubeSize, faceDirection == 2 ? isRotateClockWise : !isRotateClockWise);
 	std::vector<int> values;
 	for (int i = 0; i < cubeSize * cubeSize; i++) {
 		values.push_back(cubesIndexs[pointers[i]]);
@@ -256,7 +256,7 @@ void Game::rotateWall(int type, std::vector<int> indexs) {
 		pickedShape = indexs[i];
 		switch (type) {
 			case 0:
-				ShapeTransformation(xRotate, -amount);
+				ShapeTransformation(xRotate, amount);
 				break;
 			case 1:
 				ShapeTransformation(yRotate, amount);
