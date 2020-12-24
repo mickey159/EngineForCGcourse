@@ -94,16 +94,16 @@ void Scene::Draw(int shaderIndx, const glm::mat4& MVP, int viewportIndx, unsigne
 	{
 		if (shapes[pickedShape]->Is2Render(viewportIndx))
 		{
-			glm::mat4 Model = Normal * shapes[pickedShape]->MakeTrans();
+			glm::mat4 Model = shapes[pickedShape]->MakeTrans();
 
 			if (shaderIndx > 0)
 			{
-				Update(MVP, Model, shapes[pickedShape]->GetShader());
+				Update(MVP * Normal, Model, shapes[pickedShape]->GetShader());
 				shapes[pickedShape]->Draw(shaders[shapes[pickedShape]->GetShader()], false);
 			}
 			else
 			{ //picking
-				Update(MVP, Model, 0);
+				Update(MVP * Normal, Model, 0);
 				shapes[pickedShape]->Draw(shaders[0], true);
 			}
 		}
@@ -149,14 +149,12 @@ bool Scene::Picking(unsigned char data[4])
 		pickedShape = -1;
 		if (data[0] > 0) {
 			pickedShape = data[0] - 1;
-			pickedShapeNormalMax = 2;
-			if (data[1] > data[2]) {
-				if (data[1] > data[3])
-					pickedShapeNormalMax = 0;
-			}
-			else if(data[2] > data[3])
+			if (data[1] == 255)
+				pickedShapeNormalMax = 0;
+			else if (data[2] == 255)
 				pickedShapeNormalMax = 1;
-			
+			else
+				pickedShapeNormalMax = 2;		
 			WhenPicked();
 		}
 		return false;

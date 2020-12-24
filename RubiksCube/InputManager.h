@@ -101,6 +101,24 @@
 			case GLFW_KEY_F: // push front wall rot animation
 				scn->AddOperation(5);
 				break;
+			case GLFW_KEY_E: // push 2nd right wall rot animation
+				scn->AddOperation(11);
+				break;
+			case GLFW_KEY_K: // push 2nd left wall rot animation
+				scn->AddOperation(10);
+				break;
+			case GLFW_KEY_Y: // push 2nd up wall rot animation
+				scn->AddOperation(13);
+				break;
+			case GLFW_KEY_S: // push 2nd down wall rot animation
+				scn->AddOperation(12);
+				break;
+			case GLFW_KEY_V: // push 2nd back wall rot animation
+				scn->AddOperation(14);
+				break;
+			case GLFW_KEY_G: // push 2nd front wall rot animation
+				scn->AddOperation(15);
+				break;
 			case GLFW_KEY_Z:
 				scn->AddOperation(8);
 				break;

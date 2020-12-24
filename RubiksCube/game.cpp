@@ -34,9 +34,24 @@ void printCube(int cubeSize, std::vector<int> Cube) {
 		std::cout << std::endl;
 	}
 }
+void printInstructions(int cubeSize) {
+	std::cout << "up and down keys move the camera" << std::endl;
+	std::cout << "R rotate right wall, L rotate left wall" << std::endl;
+	std::cout << "U rotate top wall, D rotate bottom wall" << std::endl;
+	std::cout << "F rotate front wall, B rotate back wall" << std::endl;
+	if (cubeSize > 3) {
+		std::cout << "G rotate 2nd front wall, V rotate 2nd back wall" << std::endl;
+		std::cout << "Y rotate 2nd top wall, S rotate 2nd down wall" << std::endl;
+		std::cout << "E rotate 2nd right wall, K rotate 2nd back wall" << std::endl;
+	}
+	std::cout << "Z speed up the rotation, A slow it down" << std::endl;
+	std::cout << "M make 10 random rotation" << std::endl;
+	std::cout << "SPACE changes rotation direction *and create outer space and move us to the forth dimension*" << std::endl;
+}
+
 Game::Game() : Scene()
 {
-	cubeSize = 3; //maximum of six because code support up to 255 cubes in total
+	cubeSize = 4; //maximum of six because code support up to 255 cubes in total
 	animSpeed = 1;
 	currFrame = 0;
 	isRotateClockWise = true;
@@ -68,9 +83,9 @@ void Game::Init()
 			}
 		}
 	}
+	printInstructions(cubeSize);
 	UpdateAnimationSpeed(0);
 	printCube(cubeSize, cubesIndexs);
-	
 	pickedShape = -1;
 	SetShapeShader(0, 1);
 
@@ -181,7 +196,7 @@ std::vector<int> rotatedFaceIndexes(int cubeSize, bool isClockWise) {
 
 void Game::addRotation(int faceDirection, int faceIndex) {
 	std::vector<int> pointers = getFaceIndexes(cubeSize, faceDirection, faceIndex);
-	std::vector<int> positions = rotatedFaceIndexes(cubeSize, isRotateClockWise);
+	std::vector<int> positions = rotatedFaceIndexes(cubeSize, faceDirection == 1 ? !isRotateClockWise : isRotateClockWise);
 	std::vector<int> values;
 	for (int i = 0; i < cubeSize * cubeSize; i++) {
 		values.push_back(cubesIndexs[pointers[i]]);
@@ -197,25 +212,22 @@ void Game::addRotation(int faceDirection, int faceIndex) {
 	operations.push(operation);
 }
 void Game::AddOperation(int operation) {
-	Operation op;
 	if (operation < 6) {
-		op.type = operation / 2;
-		std::vector<int> pointers = getFaceIndexes(cubeSize, op.type, (operation % 2) * (cubeSize - 1));
-		std::vector<int> positions = rotatedFaceIndexes(cubeSize, isRotateClockWise);
-		std::vector<int> values;
-		for (int i = 0; i < cubeSize * cubeSize; i++) {
-			values.push_back(cubesIndexs[pointers[i]]);
-		}
-		for (int i = 0; i < cubeSize * cubeSize; i++) {
-			cubesIndexs[pointers[i]] = values[positions[i]];
-		}
-		op.indexs = values;
-		printCube(cubeSize, cubesIndexs);
+		addRotation(operation / 2, (operation % 2) * (cubeSize - 1));
 	}//rotation
+	else if (operation >= 10) {
+		if (cubeSize > 3) {
+			operation -= 10;
+			addRotation(operation / 2, (operation % 2) ? (cubeSize - 2) : 1);
+		}
+		else
+			std::cout << "operation is not premitted in cubes sized less then 3" << std::endl;
+	}//rotationSecond
 	else {
+		Operation op;
 		op.type = operation - 3;
+		operations.push(op);
 	} //others
-	operations.push(op);
 }
 void Game::ReadOperation() {
 	if (operations.empty())
@@ -231,7 +243,7 @@ void Game::ReadOperation() {
 }
 void Game::rotateWall(int type, std::vector<int> indexs) {
 	currFrame += animSpeed;
-	float amount = (isRotateClockWise ? 1 : -1);
+	float amount = (isRotateClockWise ? -1 : 1);
 	if (currFrame >= TOTAL_FRAMES) {
 		amount *= (TOTAL_FRAMES + animSpeed - currFrame);
 		operations.pop();
@@ -244,13 +256,13 @@ void Game::rotateWall(int type, std::vector<int> indexs) {
 		pickedShape = indexs[i];
 		switch (type) {
 			case 0:
-				ShapeTransformation(xRotate, amount);
+				ShapeTransformation(xRotate, -amount);
 				break;
 			case 1:
 				ShapeTransformation(yRotate, amount);
 				break;
 			case 2:
-				ShapeTransformation(zRotate, -amount);
+				ShapeTransformation(zRotate, amount);
 				break;
 		}
 	}
@@ -265,12 +277,13 @@ void Game::WhenPicked() {
 		cubeIndex -= faceIndex * cubeSize * cubeSize;
 		int rowIndex = cubeIndex / cubeSize;
 		int colIndex = cubeIndex - rowIndex * cubeSize;
+
 		switch (pickedShapeNormalMax) {
 			case 0:
-				addRotation(1, rowIndex);
+				addRotation(0, colIndex);
 				break;
 			case 1:
-				addRotation(0, colIndex);
+				addRotation(1, rowIndex);
 				break;
 			case 2:
 				addRotation(2, faceIndex);
