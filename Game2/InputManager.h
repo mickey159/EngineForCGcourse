@@ -16,7 +16,6 @@
 			if (rndr->Picking((int)x2, (int)y2))
 			{
 				rndr->UpdatePosition(x2, y2);
-				std::cout << "picked" << std::endl;
 			}
 			scn->ResetCounter();
 		}

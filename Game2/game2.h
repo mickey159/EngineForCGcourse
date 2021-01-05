@@ -1,5 +1,6 @@
 #pragma once
 #include "scene.h"
+#include "Bezier1D.h"
 
 class Game2 : public Scene
 {
@@ -23,5 +24,6 @@ private:
 	unsigned int counter;
 	unsigned int tmp;
 	float x, y;
+	Bezier1D* bez;
 };
 

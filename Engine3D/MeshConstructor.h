@@ -33,6 +33,8 @@ public:
 		Plane,
 		Cube,
 		Octahedron,
+		Bezier1,
+		Bezier2,
 		Tethrahedron,
 	};
 	MeshConstructor(const int type);

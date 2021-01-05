@@ -16,49 +16,51 @@ static void printMat(const glm::mat4 mat)
 Game2::Game2() : Scene()
 {
 	counter = 1;
-	
+	bez = new Bezier1D(3, 20, LINES);
 }
-
-//Game2::Game2(float angle ,float relationWH, float near, float far) : Scene(angle,relationWH,near,far)
-//{ 	
-//}
 
 void Game2::Init()
 {		
 	unsigned int texIDs[3] = { 0 , 1, 0};
 	unsigned int slots[3] = { 0 , 1, 0 };
 	
-	AddShader("../res/shaders/pickingShader");	
+	AddShader("../res/shaders/pickingShader");
 	AddShader("../res/shaders/basicShader");
+	AddShader("../res/shaders/basicShader2");
 	AddTexture("../res/textures/box0.bmp", 2);
-	//TextureDesine(840, 840);
 
 	AddMaterial(texIDs,slots, 1);
-	
-	AddShape(Cube, -1, TRIANGLES);
-	AddShape(Octahedron, -1, TRIANGLES);
-	
+	int segments = 3;
+
+	Bezier1D* bezier = bez;
+
 	AddShape(Axis, -1, LINES);
-	
-	AddShapeCopy(0, -1, TRIANGLES);
-
-	SetShapeShader(0, 1);
+	AddShape(bezier, 0);
 	SetShapeShader(1, 1);
-	SetShapeShader(2, 1);
-	SetShapeShader(3, 1);
-
-	pickedShape = 0;
-	ShapeTransformation(zTranslate, -4);
 	pickedShape = 1;
-	ShapeTransformation(yTranslate, 4);
-	pickedShape = 2;
-	ShapeTransformation(xScale, 5);
-	ShapeTransformation(yScale, 5);
-	ShapeTransformation(zScale, 5);
-	pickedShape = 3;
-	ShapeTransformation(xTranslate, 7);
+	ShapeTransformation(xTranslate, - 0.5);
+	ShapeTransformation(yTranslate, - 0.5);
+	//bezier->GetSegmentsNum()
+	for (int seg = 0; seg < bezier->GetSegmentsNum(); seg++) {
+		for (int i = 0; i < 4; i++) {
+			glm::vec4 cp = bezier->GetControlPoint(seg, i);
+			AddShape(Octahedron, 0, TRIANGLES);
+			
+			pickedShape = seg*4 + i + 2;
+			SetShapeShader(pickedShape, 1);
+			ShapeTransformation(xScale, 0.04);
+			ShapeTransformation(yScale, 0.04);
+			ShapeTransformation(xTranslate, (cp.x - 0.5)/0.04);
+			//ShapeTransformation(yTranslate, (cp.y - 0.5)/0.04);
+		}
+	}
+	/*for (int i = 0; i < 1 * 4 + 2; i++) {
+		AddShapeViewport(i, 1);
+		RemoveShapeViewport(i, 0);
+	}*/
 	pickedShape = -1;
-	//SetShapeMaterial(0, 0);
+	//AddShape(Cube, -1, TRIANGLES);
+	//AddShapeCopy(segments * 4 + 1 + 1 + 1, -1, TRIANGLES);
 }
 
 void Game2::Update(const glm::mat4 &MVP,const glm::mat4 &Model,const int  shaderIndx)
@@ -80,7 +82,7 @@ void Game2::Update(const glm::mat4 &MVP,const glm::mat4 &Model,const int  shader
 	s->SetUniform1i("sampler1", materials[shapes[pickedShape]->GetMaterial()]->GetSlot(0));
 	if(shaderIndx!=1)
 		s->SetUniform1i("sampler2", materials[shapes[pickedShape]->GetMaterial()]->GetSlot(1));
-	s->SetUniform4f("lightColor", r, g, b, 0);
+	s->SetUniform4f("lightColor", r / 255.0, g / 255.0, b / 255.0, 0);
 	s->SetUniform1ui("counter", counter);
 	s->SetUniform1f("x", x);
 	s->SetUniform1f("y", y);
@@ -98,21 +100,23 @@ void Game2::UpdatePosition(float xpos,  float ypos)
 void Game2::WhenRotate()
 {
 	std::cout << "x "<<x<<", y "<<y<<std::endl;
-	
 }
 
 void Game2::WhenTranslate()
 {
+	if (pickedShape >= 2) {
+		bez->CurveUpdate(pickedShape - 2, x, y, false);
+		ShapeTransformation(xTranslate, x / 0.04);
+		ShapeTransformation(yTranslate, y / 0.04);
+	}
 }
-
-
 
 void Game2::Motion()
 {
 	if(isActive)
 	{
-		pickedShape = 3;
-		ShapeTransformation(yRotate, 0.07);
+		//pickedShape = 3;
+		//ShapeTransformation(yRotate, 0.07);
 	}
 }
 

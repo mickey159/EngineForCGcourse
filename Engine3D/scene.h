@@ -14,13 +14,14 @@ public:
 	enum axis { xAxis, yAxis, zAxis };
 	enum transformations { xTranslate, yTranslate, zTranslate, xRotate, yRotate, zRotate, xScale, yScale, zScale, xCameraTranslate, yCameraTranslate, zCameraTranslate };
 	enum modes { POINTS, LINES, LINE_LOOP, LINE_STRIP, TRIANGLES, TRIANGLE_STRIP, TRIANGLE_FAN, QUADS };
-	enum shapes { Axis, Plane, Cube, Octahedron, Tethrahedron, LineCopy, MeshCopy };
+	enum shapes { Axis, Plane, Cube, Octahedron, Tethrahedron, Bezier1, Bezier2, LineCopy, MeshCopy };
 	enum buffers { COLOR, DEPTH, STENCIL, BACK, FRONT, NONE };
 
 	Scene();
 	//Scene(float angle, float relationWH, float near, float far);
 
 	void AddShapeFromFile(const std::string& fileName, int parent, unsigned int mode);
+	virtual void AddShape(Shape* shp, int parent);
 	virtual void AddShape(int type, int parent, unsigned int mode);
 	void AddShapeCopy(int indx, int parent, unsigned int mode);
 

@@ -2,6 +2,7 @@
 #include "GL/glew.h"
 #include "scene.h"
 #include <iostream>
+#include <Game2\Bezier1D.h>
 
 static void printMat(const glm::mat4 mat)
 {
@@ -28,6 +29,12 @@ void Scene::AddShapeFromFile(const std::string& fileName, int parent, unsigned i
 {
 	chainParents.push_back(parent);
 	shapes.push_back(new Shape(fileName, mode));
+}
+
+void Scene::AddShape(Shape* shp, int parent)
+{
+	chainParents.push_back(parent);
+	shapes.push_back(shp);
 }
 
 void Scene::AddShape(int type, int parent, unsigned int mode)
@@ -133,6 +140,15 @@ void Scene::ShapeTransformation(int type, float amt)
 		case zRotate:
 			shapes[pickedShape]->MyRotate(amt, glm::vec3(0, 0, 1), 0);
 			break;
+		case xScale:
+			shapes[pickedShape]->MyScale(glm::vec3(amt, 1, 1));
+			break;
+		case yScale:
+			shapes[pickedShape]->MyScale(glm::vec3(1, amt, 1));
+			break;
+		case zScale:
+			shapes[pickedShape]->MyScale(glm::vec3(1, 1, amt));
+			break;
 		default:
 			break;
 		}
@@ -143,6 +159,7 @@ void Scene::ShapeTransformation(int type, float amt)
 bool Scene::Picking(unsigned char data[4])
 {
 		pickedShape = -1;
+		std::cout << data[0] - 1 << std::endl;
 		if (data[0] > 0)
 		{
 			pickedShape = data[0]-1; //r 
@@ -158,18 +175,18 @@ void Scene::MouseProccessing(int button, int xrel, int yrel)
 	//{
 	if (button == 1)
 	{
-		pickedShape = 0;
+		/*pickedShape = 0;
 		ShapeTransformation(xTranslate, xrel / 80.0f);
-		pickedShape = -1;
+		pickedShape = -1; */
 		//MyTranslate(glm::vec3(-xrel / 80.0f, 0, 0), 0);
 		//MyTranslate(glm::vec3(0, yrel / 80.0f, 0), 0);
 		WhenTranslate();
 	}
 	else
 	{
-		pickedShape = 0;
+		/*pickedShape = 0;
 		ShapeTransformation(yRotate, xrel / 2.0f);
-		pickedShape = -1;
+		pickedShape = -1;*/
 		//MyRotate(-xrel / 2.0f, glm::vec3(0, 1, 0), 0);
 		//MyRotate(-yrel / 2.0f, glm::vec3(1, 0, 0), 1);
 		WhenRotate();
