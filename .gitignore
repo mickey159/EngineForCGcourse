@@ -1,4 +1,8 @@
 # Directories
+.vscode
+.vs
 build
 
-# Files
+#exclude
+!/build/res/
+!/build/res/*
