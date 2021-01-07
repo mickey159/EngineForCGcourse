@@ -17,6 +17,10 @@ Game2::Game2() : Scene()
 {
 	counter = 1;
 	bez = new Bezier1D(3, 20, LINES);
+	x = 0;
+	y = 0;
+	xprev = 0;
+	yprev = 0;
 }
 
 void Game2::Init()
@@ -38,26 +42,29 @@ void Game2::Init()
 	AddShape(bezier, 0);
 	SetShapeShader(1, 1);
 	pickedShape = 1;
-	ShapeTransformation(xTranslate, - 0.5);
-	ShapeTransformation(yTranslate, - 0.5);
+	ShapeTransformation(xScale, 0.9);
+	ShapeTransformation(yScale, 0.9);
 	//bezier->GetSegmentsNum()
 	for (int seg = 0; seg < bezier->GetSegmentsNum(); seg++) {
-		for (int i = 0; i < 4; i++) {
+		for (int i = 0; i < (bezier->GetSegmentsNum() - 1 == seg ? 4 : 3); i++) {
 			glm::vec4 cp = bezier->GetControlPoint(seg, i);
-			AddShape(Octahedron, 0, TRIANGLES);
+			AddShape(Octahedron, 1, TRIANGLES);
 			
-			pickedShape = seg*4 + i + 2;
-			SetShapeShader(pickedShape, 1);
+			pickedShape = seg*3 + i + 2;
+			SetShapeShader(pickedShape, 2);
 			ShapeTransformation(xScale, 0.04);
 			ShapeTransformation(yScale, 0.04);
-			ShapeTransformation(xTranslate, (cp.x - 0.5)/0.04);
-			//ShapeTransformation(yTranslate, (cp.y - 0.5)/0.04);
+			ShapeTransformation(xTranslate, (cp.x * 0.9)/0.04);
+			ShapeTransformation(yTranslate, (cp.y * 0.9)/0.04);
 		}
 	}
-	/*for (int i = 0; i < 1 * 4 + 2; i++) {
+	for (int i = 0; i < bezier->GetSegmentsNum() * 3 + 3; i++) {
 		AddShapeViewport(i, 1);
 		RemoveShapeViewport(i, 0);
-	}*/
+	}
+	/*pickedShape = 0;
+	ShapeTransformation(xScale, 5);
+	ShapeTransformation(yScale, 5);*/
 	pickedShape = -1;
 	//AddShape(Cube, -1, TRIANGLES);
 	//AddShapeCopy(segments * 4 + 1 + 1 + 1, -1, TRIANGLES);
@@ -93,21 +100,60 @@ void Game2::UpdatePosition(float xpos,  float ypos)
 {
 	int viewport[4];
 	glGetIntegerv(GL_VIEWPORT, viewport);
+	xprev = x;
+	yprev = y;
 	x = xpos / viewport[2];
 	y =  1 - ypos / viewport[3]; 
 }
 
+glm::vec4 getLine(glm::vec4 p0, glm::vec4 p1) {
+	float a = (p0.y - p1.y) / (p0.x - p1.x);
+	float b = p0.y - a * p0.x;
+	return glm::vec4(a, b, 0, 0);
+}
+
 void Game2::WhenRotate()
 {
-	std::cout << "x "<<x<<", y "<<y<<std::endl;
+	float scale = 21;
+	int currPoint = pickedShape - 2;
+	if (pickedShape > 2 && currPoint % 3 == 0 && currPoint != bez->GetSegmentsNum() * 3) {
+		int segment = currPoint / 3;
+		glm::vec4 line = getLine(bez->GetControlPoint(currPoint / 3, 0), bez->GetControlPoint(currPoint / 3, 1));
+		glm::vec4 p2 = bez->GetControlPoint(-1 + currPoint / 3, 2);
+		float yOffset = line[0]*p2.x + line[1] - p2.y;
+		bez->CurveUpdate(currPoint - 1, 0, yOffset, false);
+		pickedShape -= 1;
+		ShapeTransformation(yTranslate, yOffset * scale);
+	}
 }
 
 void Game2::WhenTranslate()
 {
-	if (pickedShape >= 2) {
-		bez->CurveUpdate(pickedShape - 2, x, y, false);
-		ShapeTransformation(xTranslate, x / 0.04);
-		ShapeTransformation(yTranslate, y / 0.04);
+	float scale = 21;
+	float xOffset = (x - xprev);
+	float yOffset = (y - yprev);
+	if (xOffset > 0.1 || yOffset > 0.1)
+		return;
+	if (pickedShape > 1) {
+		int currPoint = pickedShape - 2;
+		if (currPoint % 3 == 0) {
+			if (currPoint != bez->GetSegmentsNum() * 3) { //firstPoint
+				bez->CurveUpdate(currPoint + 1, xOffset, yOffset, false);
+				pickedShape = currPoint + 3;
+				ShapeTransformation(xTranslate, xOffset * scale);
+				ShapeTransformation(yTranslate, yOffset * scale);
+			}
+			if (currPoint != 0) { //lastPoint
+				bez->CurveUpdate(currPoint - 1, xOffset, yOffset, false);
+				pickedShape = currPoint + 1;
+				ShapeTransformation(xTranslate, xOffset * scale);
+				ShapeTransformation(yTranslate, yOffset * scale);
+			}
+		}
+		pickedShape = currPoint + 2;
+		bez->CurveUpdate(pickedShape - 2, xOffset, yOffset, false);
+		ShapeTransformation(xTranslate, xOffset * scale);
+		ShapeTransformation(yTranslate, yOffset * scale);
 	}
 }
 

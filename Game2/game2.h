@@ -24,6 +24,7 @@ private:
 	unsigned int counter;
 	unsigned int tmp;
 	float x, y;
+	float xprev, yprev;
 	Bezier1D* bez;
 };
 

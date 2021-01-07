@@ -16,6 +16,9 @@
 			if (rndr->Picking((int)x2, (int)y2))
 			{
 				rndr->UpdatePosition(x2, y2);
+				if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+					scn->WhenRotate();
+				}
 			}
 			scn->ResetCounter();
 		}
@@ -43,6 +46,7 @@
 
 			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 			{
+				scn->UpdatePosition((float)xpos, (float)ypos);
 				rndr->MouseProccessing(GLFW_MOUSE_BUTTON_RIGHT);
 			}
 			else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)

@@ -51,7 +51,17 @@ void Renderer::Init(Scene* scene,  std::list<int>xViewport,  std::list<int>yView
 			for (++yit; yit != yViewport.end(); ++yit)
 			{
 				viewports.push_back(glm::ivec4(*std::prev(xit), *std::prev(yit), *xit - *std::prev(xit), *yit - *std::prev(yit)));
-				drawInfo.push_back(new DrawInfo(indx, 0, 1, 0, indx < 1 | depthTest));
+				if (indx < 1)
+				{
+					drawInfo.push_back(new DrawInfo(indx, 0, 0, 0, indx < 1 | inAction | depthTest | stencilTest | 
+						passStencil | blackClear | clearStencil | clearDepth | sceneTrans ));
+					drawInfo.push_back(new DrawInfo(indx, 0, 1, 0, indx < 1 | depthTest | clearDepth | sceneTrans));
+				}
+				else {
+					drawInfo.push_back(new DrawInfo(indx, 0, 0, 0, indx < 1 | inAction | depthTest | stencilTest |
+						passStencil | blackClear | clearStencil | clearDepth));
+					drawInfo.push_back(new DrawInfo(indx, 0, 1, 0, indx < 1 | depthTest | clearDepth));
+				}
 				indx++;
 			}
 		}

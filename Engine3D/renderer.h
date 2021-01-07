@@ -39,7 +39,9 @@ class Renderer
 public:
 	enum buffersMode { COLOR, DEPTH, STENCIL, BACK, FRONT, NONE };
 	enum transformations { xTranslate, yTranslate, zTranslate, xRotate, yRotate, zRotate, xScale, yScale, zScale, xCameraTranslate, yCameraTranslate, zCameraTranslate };
-	enum drawFlags { toClear = 1, is2D = 2, inAction = 4, scissorTest = 8, depthTest = 16, stencilTest = 32, blend = 64, blackClear = 128, debugMode = 256};
+	enum drawFlags { toClear = 1, is2D = 2, inAction = 4, scissorTest = 8, depthTest = 16, stencilTest = 32, blend = 64, blackClear = 128, debugMode = 256,
+		passStencil=512, clearStencil=1024, clearDepth=2048, sceneTrans=4096
+	};
 
 	Renderer();
 	Renderer(float angle, float relationWH, float near, float far);
