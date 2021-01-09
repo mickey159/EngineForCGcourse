@@ -92,6 +92,27 @@
 				//cout<< "down: "<<endl;
 				rndr->MoveCamera(0, scn->zTranslate, -0.4f);
 				break;
+			case GLFW_KEY_C:
+				scn->ContinuityStateToggle();
+				break;
+			case GLFW_KEY_2:
+				scn->RemakeBezier(2);
+				break;
+			case GLFW_KEY_3:
+				scn->RemakeBezier(3);
+				break;
+			case GLFW_KEY_4:
+				scn->RemakeBezier(4);
+				break;
+			case GLFW_KEY_5:
+				scn->RemakeBezier(5);
+				break;
+			case GLFW_KEY_6:
+				scn->RemakeBezier(6);
+				break;
+			case GLFW_KEY_P:
+				scn->ContinuityStateToggle();
+				break;
 			case GLFW_KEY_LEFT:
 				break;
 			default:

@@ -89,6 +89,16 @@ int Scene::AddMaterial(unsigned int texIndices[], unsigned int slots[], unsigned
 	return (materials.size() - 1);
 }
 
+void Scene::RemoveShape(int shpIndx)
+{
+	shapes.erase(shapes.begin()+shpIndx);
+}
+
+void Scene::ReplaceShape(int shpIndx, Shape* shp)
+{
+	shapes[shpIndx] = shp;
+}
+
 void Scene::Draw(int shaderIndx, const glm::mat4& MVP, int viewportIndx, unsigned int flags) 
 {
 	glm::mat4 Normal = MakeTrans();
@@ -148,6 +158,9 @@ void Scene::ShapeTransformation(int type, float amt)
 			break;
 		case zScale:
 			shapes[pickedShape]->MyScale(glm::vec3(1, 1, amt));
+			break;
+		case ZeroTrans:
+			shapes[pickedShape]->ZeroTrans();
 			break;
 		default:
 			break;

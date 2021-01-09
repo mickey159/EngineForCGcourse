@@ -7,8 +7,10 @@ class Bezier1D : public Shape
 {
 	std::vector<glm::mat4> segments;
 	int resT; // how many points returned for drawing
-	 glm::mat4 M;
-	 void MoveControlPoint(int segment, int indx, float dx, float dy, bool preserveC1);  //change the position of one control point. when preserveC1 is true it may affect other  control points 
+	glm::mat4 M;
+	glm::mat4 DM;
+	float convecHullUnit;
+	void MoveControlPoint(int segment, int indx, float dx, float dy, bool preserveC1);  //change the position of one control point. when preserveC1 is true it may affect other  control points 
 public:
 	Bezier1D(int segNum, int res,int mode, int viewport = 0);
 	IndexedModel GetLine() ;	//generates a model for MeshConstructor Constructor
@@ -21,6 +23,7 @@ public:
 	void CurveUpdate(int pointIndx, float dx, float dy, bool preserveC1 = false);  //change the line in by using ChangeLine function of MeshConstructor and MoveControlPoint 
 	
 	inline int GetSegmentsNum() const { return segments.size(); }
+	int GetSectionIsMouseInConvexHull(float x, float y);
 	~Bezier1D(void);
 };
 
