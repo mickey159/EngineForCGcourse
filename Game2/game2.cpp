@@ -47,21 +47,91 @@ void Game2::Init()
 	SetShapeShader(2, 1);
 	SetShapeShader(3, 1);
 
-	pickedShape = 0;
-	ShapeTransformation(zTranslate, -4);
-	pickedShape = 1;
-	ShapeTransformation(yTranslate, 4);
-	pickedShape = 2;
-	ShapeTransformation(xScale, 5);
-	ShapeTransformation(yScale, 5);
-	ShapeTransformation(zScale, 5);
-	pickedShape = 3;
-	ShapeTransformation(xTranslate, 7);
+void Game2::FixControlPoints() {
+	for (int seg = 0; seg < bez->GetSegmentsNum(); seg++) {
+		for (int i = 0; i < 3; i++)
+			RelocateControlPoint(seg, i);
+	}
+	RelocateControlPoint(bez->GetSegmentsNum() - 1, 3);
+	for (int i = bez->GetSegmentsNum()*3 + 1; i < 6 * 3 + 1; i++) //max control points
+		HideControlPoint(i);
 	pickedShape = -1;
 	//SetShapeMaterial(0, 0);
 }
 
-void Game2::Update(const glm::mat4 &MVP,const glm::mat4 &Model,const int  shaderIndx)
+void Game2::AddControlPoint(int indx) {
+	AddShape(Octahedron, 1, TRIANGLES);
+	pickedShape = indx + pointsStartIndx;
+	SetShapeShader(pickedShape, 2);
+	AddShapeViewport(pickedShape, 1);
+	RemoveShapeViewport(pickedShape, 0);
+}
+
+void Game2::MoveControlPoint(int indx, float x, float y) {
+	pickedShape = indx + pointsStartIndx;
+	ShapeTransformation(xTranslate, x / pointsScale);
+	ShapeTransformation(yTranslate, y / pointsScale);
+}
+
+void Game2::MoveControlPoint(int segment, int indx, float x, float y) {
+	pickedShape = segment * 3 + indx + pointsStartIndx;
+	ShapeTransformation(xTranslate, x / pointsScale);
+	ShapeTransformation(yTranslate, y / pointsScale);
+}
+
+void Game2::RelocateControlPoint(int segment, int indx) {
+	glm::vec4 cp = bez->GetControlPoint(segment, indx);
+	pickedShape = segment * 3 + indx + pointsStartIndx;
+	ShapeTransformation(ZeroTrans, 1);
+	ShapeTransformation(xScale, pointsScale);
+	ShapeTransformation(yScale, pointsScale);
+	ShapeTransformation(xTranslate, (cp.x * curveScale) / pointsScale);
+	ShapeTransformation(yTranslate, (cp.y * curveScale) / pointsScale);
+}
+
+void Game2::HideControlPoint(int indx) {
+	pickedShape = indx + pointsStartIndx;
+	ShapeTransformation(xScale, 1.1e-5);
+	ShapeTransformation(yScale, 1.1e-5);
+}
+
+void Game2::AddControlPoint(int indx) {
+	AddShape(Octahedron, 1, TRIANGLES);
+	pickedShape = indx + pointsStartIndx;
+	SetShapeShader(pickedShape, 2);
+	AddShapeViewport(pickedShape, 1);
+	RemoveShapeViewport(pickedShape, 0);
+}
+
+void Game2::MoveControlPoint(int indx, float x, float y) {
+	pickedShape = indx + pointsStartIndx;
+	ShapeTransformation(xTranslate, x / pointsScale);
+	ShapeTransformation(yTranslate, y / pointsScale);
+}
+
+void Game2::MoveControlPoint(int segment, int indx, float x, float y) {
+	pickedShape = segment * 3 + indx + pointsStartIndx;
+	ShapeTransformation(xTranslate, x / pointsScale);
+	ShapeTransformation(yTranslate, y / pointsScale);
+}
+
+void Game2::RelocateControlPoint(int segment, int indx) {
+	glm::vec4 cp = bez->GetControlPoint(segment, indx);
+	pickedShape = segment * 3 + indx + pointsStartIndx;
+	ShapeTransformation(ZeroTrans, 1);
+	ShapeTransformation(xScale, pointsScale);
+	ShapeTransformation(yScale, pointsScale);
+	ShapeTransformation(xTranslate, (cp.x * curveScale) / pointsScale);
+	ShapeTransformation(yTranslate, (cp.y * curveScale) / pointsScale);
+}
+
+void Game2::HideControlPoint(int indx) {
+	pickedShape = indx + pointsStartIndx;
+	ShapeTransformation(xScale, 1.1e-5);
+	ShapeTransformation(yScale, 1.1e-5);
+}
+
+void Game2::Update(const glm::mat4 &View, const glm::mat4 &Projection, const glm::mat4 &Model, const int  shaderIndx)
 {	
 	if(counter)
 		counter++;
@@ -106,6 +176,19 @@ void Game2::WhenTranslate()
 }
 
 
+				}
+				if (segment != 0) { //firstSeg
+					bez->CurveUpdate(segment * 3 - 1, xOffset, yOffset, false);
+					MoveControlPoint(segment * 3 - 1, xOffset, yOffset);
+				}
+			}
+			Update3DBezier();
+			pickedShape = -1;
+		}
+		pickedShape = -1;
+	}
+
+}
 
 void Game2::Motion()
 {
