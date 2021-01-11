@@ -53,7 +53,7 @@ void Game2::FixControlPoints() {
 			RelocateControlPoint(seg, i);
 	}
 	RelocateControlPoint(bez->GetSegmentsNum() - 1, 3);
-	for (int i = bez->GetSegmentsNum()*3 + 1; i < 6 * 3 + 1; i++) //max control points
+	for (int i = bez->GetSegmentsNum() * 3 + 1; i < 6 * 3 + 1; i++) //max control points
 		HideControlPoint(i);
 	pickedShape = -1;
 	//SetShapeMaterial(0, 0);
@@ -167,8 +167,58 @@ void Game2::UpdatePosition(float xpos,  float ypos)
 
 void Game2::WhenRotate()
 {
-	std::cout << "x "<<x<<", y "<<y<<std::endl;
-	
+	if (pickedShape < 22) { // do control points stuff only when we want to
+		if (pickedShape > pointsStartIndx + 6 * 3) {
+	if (pickedShape > pointsStartIndx - 1){
+		int currPoint = pickedShape - pointsStartIndx;
+		int pointIndx = currPoint % 3;
+		int pointSeg = currPoint / 3;
+		if (pointIndx != 0) { //pressed p1 or p2
+			float xOffset = (x - xprev);
+			float yOffset = (y - yprev);
+			if (xOffset > 0.1 || yOffset > 0.1)
+				return;
+			ShapeTransformation(xTranslate, xOffset);
+			ShapeTransformation(yTranslate, yOffset);
+		}
+		else if (pickedShape > pointsStartIndx - 1) {
+			int currPoint = pickedShape - pointsStartIndx;
+			int pointIndx = currPoint % 3;
+			int pointSeg = currPoint / 3;
+			if (pointIndx != 0) { //pressed p1 or p2
+				float xOffset = (x - xprev);
+				float yOffset = (y - yprev);
+				if (xOffset > 0.1 || yOffset > 0.1)
+					return;
+				glm::vec4 center = bez->GetControlPoint(pointSeg, pointIndx == 1 ? 0 : 3);
+				glm::vec4 point = bez->GetControlPoint(pointSeg, pointIndx);
+				glm::vec4 nextLoc = rotatePoint(center, point, xOffset, yOffset);
+				xOffset = nextLoc.x - point.x;
+				yOffset = nextLoc.y - point.y;
+				bez->CurveUpdate(currPoint, xOffset, yOffset, isContinuityState);
+				MoveControlPoint(currPoint, xOffset, yOffset);
+				Update3DBezier();
+			}
+			else if (pointSeg != bez->GetSegmentsNum() && pointSeg != 0) { //option b
+				glm::vec4 line = getLine(bez->GetControlPoint(pointSeg, 0), bez->GetControlPoint(pointSeg, 1));
+				glm::vec4 p2 = bez->GetControlPoint(pointSeg - 1, 2);
+				float yOffset = line[0] * p2.x + line[1] - p2.y;
+				bez->CurveUpdate(currPoint - 1, 0, yOffset, false);
+				MoveControlPoint(currPoint - 1, 0, yOffset);
+				Update3DBezier();
+			}
+		}
+		else if (x > 1) {// option e - convex hull
+			int segment = bez->GetSectionIsMouseInConvexHull(2 * (x - 1.5), 2 * y - 1);
+			if (segment == -1)
+				return;
+			bez->SplitSegment(segment, 0);
+			FixControlPoints();
+		}
+	}
+	else {
+		bez2->rotateBezier(x - xprev);
+	}
 }
 
 void Game2::WhenTranslate()
