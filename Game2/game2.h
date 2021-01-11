@@ -13,7 +13,7 @@ public:
 	void MoveControlPoint(int segment, int indx, float x, float y);
 	void RelocateControlPoint(int segment, int indx);
 	void HideControlPoint(int indx);
-	void Update(const glm::mat4 &MVP,const glm::mat4 &Model,const int  shaderIndx);
+	void Update(const glm::mat4& View, const glm::mat4& Projection, const glm::mat4 &Model,const int  shaderIndx);
 	
 	void WhenRotate();
 	void WhenTranslate();

@@ -99,7 +99,7 @@ void Scene::ReplaceShape(int shpIndx, Shape* shp)
 	shapes[shpIndx] = shp;
 }
 
-void Scene::Draw(int shaderIndx, const glm::mat4& MVP, int viewportIndx, unsigned int flags) 
+void Scene::Draw(int shaderIndx, const glm::mat4& View, const glm::mat4& Projection, int viewportIndx, unsigned int flags)
 {
 	glm::mat4 Normal = MakeTrans();
 
@@ -109,16 +109,16 @@ void Scene::Draw(int shaderIndx, const glm::mat4& MVP, int viewportIndx, unsigne
 	{
 		if (shapes[pickedShape]->Is2Render(viewportIndx))
 		{
-			glm::mat4 Model = Normal * shapes[pickedShape]->MakeTrans();
+			glm::mat4 Model = shapes[pickedShape]->MakeTrans();
 
 			if (shaderIndx > 0)
 			{
-				Update(MVP, Model, shapes[pickedShape]->GetShader());
+				Update(View * Normal, Projection, Model, shapes[pickedShape]->GetShader());
 				shapes[pickedShape]->Draw(shaders[shapes[pickedShape]->GetShader()], false);
 			}
 			else
 			{ //picking
-				Update(MVP, Model, 0);
+				Update(View * Normal, Projection, Model, 0);
 				shapes[pickedShape]->Draw(shaders[0], true);
 			}
 		}

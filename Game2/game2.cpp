@@ -34,17 +34,24 @@ void Game2::Init()
 	AddShader("../res/shaders/pickingShader");
 	AddShader("../res/shaders/basicShader");
 	AddShader("../res/shaders/basicShader2");
+	//AddShader("../res/shaders/cubemapShader");
+
 	AddTexture("../res/textures/box0.bmp", 2);
+	//AddTexture("../res/textures/cubeMap/DayLight Box_", 3);
 
 	AddMaterial(texIDs,slots, 1);
+	//AddMaterial(texIDs + 1, slots + 1, 1);
+	AddShape(Cube, -2, TRIANGLES);
+	//SetShapeShader(0, 3);
+	//SetShapeMaterial(0, 1);
 
 	//---------------------2D BEZIER--------------------------
 	AddShape(Axis, -1, LINES);
-	AddShapeViewport(0, 1);
-	RemoveShapeViewport(0, 0);
+	AddShapeViewport(1, 1);
+	RemoveShapeViewport(1, 0);
 
 	AddShape(Cube, -1, LINES); // will be replaced by bez bez
-	pointsStartIndx = 2;
+	pointsStartIndx = 3;
 	for (int i = 0; i < 6 * 3 + 1; i++) //max control points
 		AddControlPoint(i);
 	RemakeBezier(3);
@@ -107,7 +114,7 @@ void Game2::HideControlPoint(int indx) {
 	ShapeTransformation(yScale, 1.1e-5);
 }
 
-void Game2::Update(const glm::mat4 &MVP,const glm::mat4 &Model,const int  shaderIndx)
+void Game2::Update(const glm::mat4 &View, const glm::mat4 &Projection, const glm::mat4 &Model, const int  shaderIndx)
 {	
 	if(counter)
 		counter++;
@@ -120,8 +127,10 @@ void Game2::Update(const glm::mat4 &MVP,const glm::mat4 &Model,const int  shader
 	//textures[0]->Bind(0);
 	s->Bind();
 	
-		s->SetUniformMat4f("MVP", MVP);
-		s->SetUniformMat4f("Normal", Model);
+	s->SetUniformMat4f("View", View);
+	s->SetUniformMat4f("Proj", Projection);
+	//s->SetUniformMat4f("MVP", Projection * View);
+	s->SetUniformMat4f("Model", Model);
 	
 	s->SetUniform1i("sampler1", materials[shapes[pickedShape]->GetMaterial()]->GetSlot(0));
 	if(shaderIndx!=1)

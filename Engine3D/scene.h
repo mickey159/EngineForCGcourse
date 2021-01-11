@@ -33,13 +33,13 @@ public:
 	void ReplaceShape(int shpIndx, Shape* shp);
 	void ZeroShapesTrans();
 
-	virtual void Update(const glm::mat4& MVP, const glm::mat4& Normal, const int  shaderIndx) = 0;
+	virtual void Update(const glm::mat4& View, const glm::mat4& Projection, const glm::mat4& Normal, const int  shaderIndx) = 0;
 	virtual void WhenTranslate() {};
 	virtual void WhenRotate() {};
 	virtual void WhenPicked() {};
 	virtual void Motion() {};
 	virtual void Reset() {};
-	virtual void Draw(int shaderIndx, const glm::mat4& MVP, int viewportIndx, unsigned int flags);
+	virtual void Draw(int shaderIndx, const glm::mat4& View, const glm::mat4& Projection, int viewportIndx, unsigned int flags);
 	virtual ~Scene(void);
 
 	void ShapeTransformation(int type, float amt);
