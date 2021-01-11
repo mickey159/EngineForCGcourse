@@ -68,12 +68,16 @@ void Game2::RemakeBezier(int segNum) {
 	ShapeTransformation(xScale, curveScale);
 	ShapeTransformation(yScale, curveScale);
 
+	FixControlPoints();
+}
+
+void Game2::FixControlPoints() {
 	for (int seg = 0; seg < bez->GetSegmentsNum(); seg++) {
 		for (int i = 0; i < 3; i++)
 			RelocateControlPoint(seg, i);
 	}
 	RelocateControlPoint(bez->GetSegmentsNum() - 1, 3);
-	for (int i = bez->GetSegmentsNum()*3 + 1; i < 6 * 3 + 1; i++) //max control points
+	for (int i = bez->GetSegmentsNum() * 3 + 1; i < 6 * 3 + 1; i++) //max control points
 		HideControlPoint(i);
 	pickedShape = -1;
 }
@@ -161,35 +165,54 @@ glm::vec4 getLine(glm::vec4 p0, glm::vec4 p1) {
 	float b = p0.y - a * p0.x;
 	return glm::vec4(a, b, 0, 0);
 }
-glm::vec4 rotatePoint(glm::vec4 center, glm::vec4 point, glm::vec4 amt) {
+float getAngle(glm::vec4 center, glm::vec4 point, float xOffset, float yOffset) {
+	glm::vec4 vectorA = point - center;
+	glm::vec4 vectorB = glm::vec4(point.x + xOffset, point.y + yOffset, 0, 0) - center;
+	float dot = vectorA.x * vectorB.x + vectorA.y * vectorB.y;
+	float det = vectorA.x * vectorB.y - vectorA.y * vectorB.x;
+	return atan2(det, dot);
+}
+glm::vec4 rotatePoint(glm::vec4 center, glm::vec4 point, float xOffset, float yOffset) {
+	float angle = getAngle(center, point, xOffset, yOffset);
 	point -= center;
-	return glm::vec4(center.x + point.x *amt.y - point.y*amt.x, center.y + point.x * amt.x + point.y * amt.y, 0, 0);
+	float s = sin(angle);
+	float c = cos(angle);
+	return center + glm::vec4(point.x * c - point.y * s, point.x * s + point.y * c, 0, 0);
 }
 
 void Game2::WhenRotate()
 {
-	float scale = 21;
-	int currPoint = pickedShape - 2;
-	if (pickedShape > 2){
-		if (currPoint % 3 == 0 && currPoint != bez->GetSegmentsNum() * 3) {
-			int segment = currPoint / 3;
-			glm::vec4 line = getLine(bez->GetControlPoint(currPoint / 3, 0), bez->GetControlPoint(currPoint / 3, 1));
-			glm::vec4 p2 = bez->GetControlPoint(-1 + currPoint / 3, 2);
+	if (pickedShape > pointsStartIndx - 1){
+		int currPoint = pickedShape - pointsStartIndx;
+		int pointIndx = currPoint % 3;
+		int pointSeg = currPoint / 3;
+		if (pointIndx != 0) { //pressed p1 or p2
+			float xOffset = (x - xprev);
+			float yOffset = (y - yprev);
+			if (xOffset > 0.1 || yOffset > 0.1)
+				return;
+			glm::vec4 center = bez->GetControlPoint(pointSeg, pointIndx == 1 ? 0 : 3);
+			glm::vec4 point = bez->GetControlPoint(pointSeg, pointIndx);
+			glm::vec4 nextLoc = rotatePoint(center, point, xOffset, yOffset);
+			xOffset = nextLoc.x - point.x;
+			yOffset = nextLoc.y - point.y;
+			bez->CurveUpdate(currPoint, xOffset, yOffset, isContinuityState);
+			MoveControlPoint(currPoint, xOffset, yOffset);
+		}
+		else if (pointSeg != bez->GetSegmentsNum() && pointSeg != 0) { //option b
+			glm::vec4 line = getLine(bez->GetControlPoint(pointSeg, 0), bez->GetControlPoint(pointSeg, 1));
+			glm::vec4 p2 = bez->GetControlPoint(pointSeg - 1, 2);
 			float yOffset = line[0] * p2.x + line[1] - p2.y;
 			bez->CurveUpdate(currPoint - 1, 0, yOffset, false);
-			pickedShape -= 1;
-			ShapeTransformation(yTranslate, yOffset * scale);
+			MoveControlPoint(currPoint - 1, 0, yOffset);
 		}
-		float xOffset = (x - xprev);
-		float yOffset = (y - yprev);
-		if (xOffset > 0.1 || yOffset > 0.1)
+	}
+	else if(x > 1) {// option e - convex hull
+		int segment = bez->GetSectionIsMouseInConvexHull(2 * (x - 1.5), 2 * y - 1);
+		if (segment == -1)
 			return;
-		glm::vec4 p0 = bez->GetControlPoint(currPoint / 3, 0);
-		glm::vec4 p3 = bez->GetControlPoint(currPoint / 3, 3);
-		glm::vec4 cp = bez->GetControlPoint(currPoint / 3, currPoint - currPoint/3);
-		glm::vec4 p = bez->GetPointOnCurve(currPoint / 3, pps * (cp.x - p0.x)/(p3.x - p0.x));
-		cp -= p; //translate to origin
-
+		bez->SplitSegment(segment, 0);
+		FixControlPoints();
 	}
 }
 

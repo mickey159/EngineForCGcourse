@@ -26,6 +26,7 @@ public:
 
 	void UpdatePosition( float xpos, float ypos);
 	void RemakeBezier(int segNum);
+	void FixControlPoints();
 	void ContinuityStateToggle();
 private:
 	unsigned int counter;
