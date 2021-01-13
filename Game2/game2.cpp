@@ -235,6 +235,7 @@ void Game2::WhenTranslate()
 			Update3DBezier();
 			pickedShape = -1;
 		}
+		Update3DBezier();
 		pickedShape = -1;
 	}
 
