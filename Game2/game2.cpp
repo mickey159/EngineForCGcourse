@@ -24,6 +24,9 @@ Game2::Game2() : Scene()
 	curveScale = 0.9;
 	pointsScale = 0.04;
 	isContinuityState = false;
+
+	bez = new Bezier1D(3, pps, LINES);
+	bez2 = new Bezier2D(bez, pps, pps, QUADS, 0);
 }
 
 void Game2::Init()
@@ -34,27 +37,47 @@ void Game2::Init()
 	AddShader("../res/shaders/pickingShader");
 	AddShader("../res/shaders/basicShader");
 	AddShader("../res/shaders/basicShader2");
-	//AddShader("../res/shaders/cubemapShader");
+	AddShader("../res/shaders/cubemapShader");
 
 	AddTexture("../res/textures/box0.bmp", 2);
-	//AddTexture("../res/textures/cubeMap/DayLight Box_", 3);
+	AddTexture("../res/textures/cubeMap/DayLight Box_", 3);
 
 	AddMaterial(texIDs,slots, 1);
-	//AddMaterial(texIDs + 1, slots + 1, 1);
-	AddShape(Cube, -2, TRIANGLES);
+	AddMaterial(texIDs + 1, slots + 1, 1);
+
+	//---------------------SKY MAP----------------------------
+	//AddShape(Cube, -1, TRIANGLES);
 	//SetShapeShader(0, 3);
-	//SetShapeMaterial(0, 1);
 
 	//---------------------2D BEZIER--------------------------
+	pointsStartIndx = 0;
 	AddShape(Axis, -1, LINES);
-	AddShapeViewport(1, 1);
-	RemoveShapeViewport(1, 0);
+	AddShapeViewport(pointsStartIndx, 1);
+	RemoveShapeViewport(pointsStartIndx, 0);
 
 	AddShape(Cube, -1, LINES); // will be replaced by bez bez
-	pointsStartIndx = 3;
+	pointsStartIndx += 2;
 	for (int i = 0; i < 6 * 3 + 1; i++) //max control points
 		AddControlPoint(i);
 	RemakeBezier(3);
+
+	//---------------------3D BEZIER--------------------------
+	Add3DBezier();
+
+}
+
+void Game2::Add3DBezier() {
+	int numOfBeziers = 0;
+	pickedShape = pointsStartIndx + 6 * 3 + numOfBeziers;
+	AddShape(bez2, -1);
+	SetShapeShader(pickedShape, 2);
+	//ShapeTransformation(yScale, 0.2);
+	//ShapeTransformation(xScale, 0.2);
+	numOfBeziers++;
+}
+
+void Game2::Update3DBezier() {
+	bez2->UpdateBezier(bez);
 }
 
 void Game2::RemakeBezier(int segNum) {
@@ -69,6 +92,7 @@ void Game2::RemakeBezier(int segNum) {
 	ShapeTransformation(yScale, curveScale);
 
 	FixControlPoints();
+	Update3DBezier();
 }
 
 void Game2::FixControlPoints() {
@@ -182,7 +206,15 @@ glm::vec4 rotatePoint(glm::vec4 center, glm::vec4 point, float xOffset, float yO
 
 void Game2::WhenRotate()
 {
-	if (pickedShape > pointsStartIndx - 1){
+	if (pickedShape > pointsStartIndx + 6 * 3) {
+		float xOffset = (x - xprev);
+		float yOffset = (y - yprev);
+		if (xOffset > 0.1 || yOffset > 0.1)
+			return;
+		ShapeTransformation(xTranslate, xOffset);
+		ShapeTransformation(yTranslate, yOffset);
+	}
+	else if (pickedShape > pointsStartIndx - 1){
 		int currPoint = pickedShape - pointsStartIndx;
 		int pointIndx = currPoint % 3;
 		int pointSeg = currPoint / 3;
@@ -198,6 +230,7 @@ void Game2::WhenRotate()
 			yOffset = nextLoc.y - point.y;
 			bez->CurveUpdate(currPoint, xOffset, yOffset, isContinuityState);
 			MoveControlPoint(currPoint, xOffset, yOffset);
+			Update3DBezier();
 		}
 		else if (pointSeg != bez->GetSegmentsNum() && pointSeg != 0) { //option b
 			glm::vec4 line = getLine(bez->GetControlPoint(pointSeg, 0), bez->GetControlPoint(pointSeg, 1));
@@ -205,6 +238,7 @@ void Game2::WhenRotate()
 			float yOffset = line[0] * p2.x + line[1] - p2.y;
 			bez->CurveUpdate(currPoint - 1, 0, yOffset, false);
 			MoveControlPoint(currPoint - 1, 0, yOffset);
+			Update3DBezier();
 		}
 	}
 	else if(x > 1) {// option e - convex hull
@@ -223,7 +257,11 @@ void Game2::WhenTranslate()
 	if (xOffset > 0.1 || yOffset > 0.1)
 		return;
 
-	if (pickedShape > pointsStartIndx - 1) {
+	if (pickedShape > pointsStartIndx + 6 * 3) {
+		ShapeTransformation(xTranslate, xOffset);
+		ShapeTransformation(yTranslate, yOffset);
+	}
+	else if (pickedShape > pointsStartIndx - 1) {
 		int currPoint = pickedShape - pointsStartIndx;
 
 		bez->CurveUpdate(currPoint, xOffset, yOffset, isContinuityState);
@@ -251,6 +289,7 @@ void Game2::WhenTranslate()
 				//RelocateControlPoint((currPoint + 1) / 3, (currPoint + 1) % 3);
 			}
 		}
+		Update3DBezier();
 		pickedShape = currPoint + pointsStartIndx;
 	}
 	else if(x > 1){
@@ -272,6 +311,7 @@ void Game2::WhenTranslate()
 				MoveControlPoint(segment * 3 - 1, xOffset, yOffset);
 			}
 		}
+		Update3DBezier();
 		pickedShape = -1;
 	}
 }
@@ -280,8 +320,9 @@ void Game2::Motion()
 {
 	if(isActive)
 	{
-		//pickedShape = 3;
-		//ShapeTransformation(yRotate, 0.07);
+		//pickedShape = pointsStartIndx + 6 * 3 + 1;
+		//ShapeTransformation(yRotate, 0.1);
+		//pickedShape = -1;
 	}
 }
 

@@ -1,6 +1,7 @@
 #pragma once
 #include "scene.h"
 #include "Bezier1D.h"
+#include "Bezier2D.h"
 
 class Game2 : public Scene
 {
@@ -8,6 +9,7 @@ public:
 	
 	Game2();
 	void Init();
+	void Add3DBezier();
 	void AddControlPoint(int indx);
 	void MoveControlPoint(int indx, float x, float y);
 	void MoveControlPoint(int segment, int indx, float x, float y);
@@ -25,6 +27,7 @@ public:
 	inline void SetCounter() { counter = tmp; }
 
 	void UpdatePosition( float xpos, float ypos);
+	void Update3DBezier();
 	void RemakeBezier(int segNum);
 	void FixControlPoints();
 	void ContinuityStateToggle();
@@ -39,5 +42,6 @@ private:
 	float pointsScale;
 	float curveScale;
 	Bezier1D* bez;
+	Bezier2D* bez2;
 };
 
