@@ -153,8 +153,9 @@ void MeshConstructor::ChangeLine(IndexedModel& model)
 
 	//	ib = new IndexBuffer((unsigned int*)model.GetData(VEC2_ATTRIB_NUM + VEC3_ATTRIB_NUM), indicesNum);
 
+	indicesNum = model.positions.size(); // one of the tips was to put this line here
 	vao.Unbind();
-
+	
 }
 
 void MeshConstructor::CopyMesh(const MeshConstructor& mesh) {

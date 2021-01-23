@@ -2,6 +2,7 @@
 #include "GL/glew.h"
 #include "scene.h"
 #include <iostream>
+#include <Game2\Bezier1D.h>
 
 static void printMat(const glm::mat4 mat)
 {
@@ -28,6 +29,12 @@ void Scene::AddShapeFromFile(const std::string& fileName, int parent, unsigned i
 {
 	chainParents.push_back(parent);
 	shapes.push_back(new Shape(fileName, mode));
+}
+
+void Scene::AddShape(Shape* shp, int parent)
+{
+	chainParents.push_back(parent);
+	shapes.push_back(shp);
 }
 
 void Scene::AddShape(int type, int parent, unsigned int mode)
@@ -82,7 +89,17 @@ int Scene::AddMaterial(unsigned int texIndices[], unsigned int slots[], unsigned
 	return (materials.size() - 1);
 }
 
-void Scene::Draw(int shaderIndx, const glm::mat4& MVP, int viewportIndx, unsigned int flags) 
+void Scene::RemoveShape(int shpIndx)
+{
+	shapes.erase(shapes.begin()+shpIndx);
+}
+
+void Scene::ReplaceShape(int shpIndx, Shape* shp)
+{
+	shapes[shpIndx] = shp;
+}
+
+void Scene::Draw(int shaderIndx, const glm::mat4& View, const glm::mat4& Projection, int viewportIndx, unsigned int flags)
 {
 	glm::mat4 Normal = MakeTrans();
 
@@ -92,17 +109,18 @@ void Scene::Draw(int shaderIndx, const glm::mat4& MVP, int viewportIndx, unsigne
 	{
 		if (shapes[pickedShape]->Is2Render(viewportIndx))
 		{
-			glm::mat4 Model = Normal * shapes[pickedShape]->MakeTrans();
+			glm::mat4 Model = shapes[pickedShape]->MakeTrans();
 
 			if (shaderIndx > 0)
 			{
-				Update(MVP, Model, shapes[pickedShape]->GetShader());
+				Update(View * Normal, Projection, Model, shapes[pickedShape]->GetShader());
 				shapes[pickedShape]->Draw(shaders[shapes[pickedShape]->GetShader()], false);
 			}
 			else
-			{ //picking
-				Update(MVP, Model, 0);
-				shapes[pickedShape]->Draw(shaders[0], true);
+			{ //picking - we draw the picking for Renderer::Picking()
+					Update(View * Normal, Projection, Model, 0);
+					shapes[pickedShape]->Draw(shaders[0], true);
+				
 			}
 		}
 	}
@@ -133,6 +151,18 @@ void Scene::ShapeTransformation(int type, float amt)
 		case zRotate:
 			shapes[pickedShape]->MyRotate(amt, glm::vec3(0, 0, 1), 0);
 			break;
+		case xScale:
+			shapes[pickedShape]->MyScale(glm::vec3(amt, 1, 1));
+			break;
+		case yScale:
+			shapes[pickedShape]->MyScale(glm::vec3(1, amt, 1));
+			break;
+		case zScale:
+			shapes[pickedShape]->MyScale(glm::vec3(1, 1, amt));
+			break;
+		case ZeroTrans:
+			shapes[pickedShape]->ZeroTrans();
+			break;
 		default:
 			break;
 		}
@@ -140,13 +170,21 @@ void Scene::ShapeTransformation(int type, float amt)
 
 }
 
+
+
 bool Scene::Picking(unsigned char data[4])
 {
 		pickedShape = -1;
+		std::cout << data[0] - 1 << std::endl;
 		if (data[0] > 0)
 		{
 			pickedShape = data[0]-1; //r 
-			return true;
+			if (pickedShape != 0) { // avoid cubemap
+				return true;
+			}	
+			else {
+				pickedShape = -1;
+			}
 		}
 		return false;
 		//WhenPicked();	
@@ -158,18 +196,18 @@ void Scene::MouseProccessing(int button, int xrel, int yrel)
 	//{
 	if (button == 1)
 	{
-		pickedShape = 0;
+		/*pickedShape = 0;
 		ShapeTransformation(xTranslate, xrel / 80.0f);
-		pickedShape = -1;
+		pickedShape = -1; */
 		//MyTranslate(glm::vec3(-xrel / 80.0f, 0, 0), 0);
 		//MyTranslate(glm::vec3(0, yrel / 80.0f, 0), 0);
 		WhenTranslate();
 	}
 	else
 	{
-		pickedShape = 0;
+		/*pickedShape = 0;
 		ShapeTransformation(yRotate, xrel / 2.0f);
-		pickedShape = -1;
+		pickedShape = -1;*/
 		//MyRotate(-xrel / 2.0f, glm::vec3(0, 1, 0), 0);
 		//MyRotate(-yrel / 2.0f, glm::vec3(1, 0, 0), 1);
 		WhenRotate();

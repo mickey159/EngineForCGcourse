@@ -12,15 +12,16 @@ class Scene : public MovableGLM
 
 public:
 	enum axis { xAxis, yAxis, zAxis };
-	enum transformations { xTranslate, yTranslate, zTranslate, xRotate, yRotate, zRotate, xScale, yScale, zScale, xCameraTranslate, yCameraTranslate, zCameraTranslate };
+	enum transformations { ZeroTrans, xTranslate, yTranslate, zTranslate, xRotate, yRotate, zRotate, xScale, yScale, zScale, xCameraTranslate, yCameraTranslate, zCameraTranslate };
 	enum modes { POINTS, LINES, LINE_LOOP, LINE_STRIP, TRIANGLES, TRIANGLE_STRIP, TRIANGLE_FAN, QUADS };
-	enum shapes { Axis, Plane, Cube, Octahedron, Tethrahedron, LineCopy, MeshCopy };
+	enum shapes { Axis, Plane, Cube, Octahedron, Tethrahedron, Bezier1, Bezier2, LineCopy, MeshCopy };
 	enum buffers { COLOR, DEPTH, STENCIL, BACK, FRONT, NONE };
 
 	Scene();
 	//Scene(float angle, float relationWH, float near, float far);
 
 	void AddShapeFromFile(const std::string& fileName, int parent, unsigned int mode);
+	virtual void AddShape(Shape* shp, int parent);
 	virtual void AddShape(int type, int parent, unsigned int mode);
 	void AddShapeCopy(int indx, int parent, unsigned int mode);
 
@@ -28,18 +29,21 @@ public:
 	int AddTexture(const std::string& textureFileName, int dim);
 	int AddTexture(int width, int height, unsigned char* data, int mode);
 	int AddMaterial(unsigned int texIndices[], unsigned int slots[], unsigned int size);
+	void RemoveShape(int shpIndx);
+	void ReplaceShape(int shpIndx, Shape* shp);
 	void ZeroShapesTrans();
 
-	virtual void Update(const glm::mat4& MVP, const glm::mat4& Normal, const int  shaderIndx) = 0;
+	virtual void Update(const glm::mat4& View, const glm::mat4& Projection, const glm::mat4& Normal, const int  shaderIndx) = 0;
 	virtual void WhenTranslate() {};
 	virtual void WhenRotate() {};
 	virtual void WhenPicked() {};
 	virtual void Motion() {};
 	virtual void Reset() {};
-	virtual void Draw(int shaderIndx, const glm::mat4& MVP, int viewportIndx, unsigned int flags);
+	virtual void Draw(int shaderIndx, const glm::mat4& View, const glm::mat4& Projection, int viewportIndx, unsigned int flags);
 	virtual ~Scene(void);
 
 	void ShapeTransformation(int type, float amt);
+	
 
 	bool Picking(unsigned char data[4]);
 
@@ -59,6 +63,7 @@ public:
 
 	inline void SetShapeMaterial(int shpIndx, int materialIndx) { shapes[shpIndx]->SetMaterial(materialIndx); }
 	inline void SetShapeShader(int shpIndx, int shdrIndx) { shapes[shpIndx]->SetShader(shdrIndx); }
+	
 
 private:
 
@@ -72,7 +77,7 @@ protected:
 	std::vector<Texture*> textures;
 	std::vector<Material*> materials;
 
-	int pickedShape;
+	int pickedShape; 
 
 	bool isActive;
 };

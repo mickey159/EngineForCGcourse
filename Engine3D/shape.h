@@ -7,14 +7,13 @@
 class Shape : public MovableGLM
 {
 private:
-
-	MeshConstructor* mesh;
 	unsigned int materialID;
 	int shaderID;
 	bool isCopy;
 	unsigned int mode;
 	unsigned int viewports;
-
+protected:
+	MeshConstructor* mesh;
 public:
 
 	Shape(const Shape& shape, unsigned int mode);

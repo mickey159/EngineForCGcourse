@@ -37,10 +37,8 @@ Shape::Shape(const int SimpleShapeType, unsigned int mode)
 	materialID = 0;
 }
 
-
 void Shape::Draw(const Shader* shader, bool isPicking)
 {
-	
 	shader->Bind();
 	mesh->Bind();
 	/*if(isCopy)

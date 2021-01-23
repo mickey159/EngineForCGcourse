@@ -11,26 +11,39 @@
 		Game2* scn = (Game2*)rndr->GetScene();
 		if (action == GLFW_PRESS)
 		{
-			double x2, y2;
+			// i dont want it here. i want the bezier to rotate and move with the mouse movement...
+		/*	double x2, y2;
 			glfwGetCursorPos(window, &x2, &y2);
 			if (rndr->Picking((int)x2, (int)y2))
 			{
 				rndr->UpdatePosition(x2, y2);
-				std::cout << "picked" << std::endl;
-			}
+				scn->UpdatePosition(x2, y2);
+				if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+					scn->WhenRotate();  // this was here for Game - to make the cube/octahedron rotate (the commented part in WhenRotate)
+				}
+				if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
+					scn->WhenTranslate(); // this was here for Game - to make the cube/octahedron translate (the commented part in WhenTranslate)
+				}
+
+			}*/
 			scn->ResetCounter();
 		}
 		else
 			scn->SetCounter();
-		//std::cout << "yes" << std::endl;
-		//rndr->ClearDrawFlag(1,1);
+		
 	}
 	
 	void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	{
 		Renderer* rndr = (Renderer*)glfwGetWindowUserPointer(window);
 		Game2* scn = (Game2*)rndr->GetScene();
-
+		double x2, y2;
+		glfwGetCursorPos(window, &x2, &y2);
+		if (rndr->Picking((int)x2, (int)y2)) {
+			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+				scn->scrollShape(yoffset); // simillar to the zoom in rays.
+			}	
+		}
 		scn->MyTranslate(glm::vec3(0,0,xoffset),0);
 		
 	}
@@ -41,16 +54,18 @@
 		Game2* scn = (Game2*)rndr->GetScene();
 		
 		rndr->UpdatePosition((float)xpos,(float)ypos);
+		scn->UpdatePosition((float)xpos, (float)ypos);
 
-			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+			/*if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
 			{
+				scn->UpdatePosition((float)xpos, (float)ypos);
 				rndr->MouseProccessing(GLFW_MOUSE_BUTTON_RIGHT);
 			}
 			else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 			{
 				scn->UpdatePosition((float)xpos, (float)ypos);
 				rndr->MouseProccessing(GLFW_MOUSE_BUTTON_LEFT);
-			}
+			}*/
 
 	}
 
@@ -88,6 +103,27 @@
 				//scn->shapeTransformation(scn->xGlobalRotate,-5.f);
 				//cout<< "down: "<<endl;
 				rndr->MoveCamera(0, scn->zTranslate, -0.4f);
+				break;
+			case GLFW_KEY_C:
+				scn->ContinuityStateToggle();
+				break;
+			case GLFW_KEY_2:
+				scn->RemakeBezier(2);
+				break;
+			case GLFW_KEY_3:
+				scn->RemakeBezier(3);
+				break;
+			case GLFW_KEY_4:
+				scn->RemakeBezier(4);
+				break;
+			case GLFW_KEY_5:
+				scn->RemakeBezier(5);
+				break;
+			case GLFW_KEY_6:
+				scn->RemakeBezier(6);
+				break;
+			case GLFW_KEY_P:
+				scn->ContinuityStateToggle();
 				break;
 			case GLFW_KEY_LEFT:
 				break;

@@ -27,12 +27,16 @@ glm::mat4 MovableGLM::MakeTrans(const glm::mat4 &prevTransformations) const
 
 glm::mat4 MovableGLM::MakeTrans() const
 {
-	return    rot * trans;
+	return scl * rot * trans;
 }
 
 void MovableGLM::MyTranslate(const glm::vec3 delta,int mode)
 {
+	//the first line is from the ps of 10/12. the 2nd one was there before 
+	//make something move in the left/right of the scene instead of the left/right of itself
+	// *SPECIFICALLY for rotation,  transpose(rot) = rot^-1
 	trans = glm::translate(trans,glm::vec3(glm::transpose(rot) * glm::vec4(delta,0)));
+	//trans = glm::translate(trans, delta);
 }
 
 void  MovableGLM::MyRotate(float angle,const glm::vec3 &vec,int mode)

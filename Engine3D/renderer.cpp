@@ -26,16 +26,17 @@ Renderer::Renderer(float angle, float relationWH, float near, float far)
 void Renderer::Init(Scene* scene,  std::list<int>xViewport,  std::list<int>yViewport)
 {
 	scn = scene;
-	MoveCamera(0, zTranslate, 10);
+	MoveCamera(0, zTranslate, 10); //move the camera back so we see things
 	glm::ivec4 viewport;
-	glGetIntegerv(GL_VIEWPORT, &viewport[0]);
-	drawInfo.push_back(new DrawInfo(0, 0, 0, 0,   inAction | toClear | blackClear | depthTest));
+	glGetIntegerv(GL_VIEWPORT, &viewport[0]); // put in viewport the x, y, width and height of the viewport
 	buffers.push_back(new DrawBuffer());
 
 	if (xViewport.empty() && yViewport.empty())
 	{
-		viewports.push_back(viewport);
-		drawInfo.push_back(new DrawInfo(0, 0, 1, 0,  toClear | depthTest ));
+		//we never get here because xViewport is not empty
+		//viewports.push_back(viewport);
+		//drawInfo.push_back(new DrawInfo(0, 0, 0, 0, inAction | toClear | blackClear | depthTest | clearDepth | sceneTrans));
+		//drawInfo.push_back(new DrawInfo(0, 0, 1, 0,  toClear | depthTest | clearDepth | sceneTrans));
 	}
 	else
 	{
@@ -44,16 +45,27 @@ void Renderer::Init(Scene* scene,  std::list<int>xViewport,  std::list<int>yView
 		xViewport.push_back(viewport.z);
 		yViewport.push_back(viewport.w);
 		std::list<int>::iterator xit = xViewport.begin();
-		int indx = 0;
+		int index = 0;
 		for (++xit; xit != xViewport.end(); ++xit)
 		{
 			std::list<int>::iterator yit = yViewport.begin();
 			for (++yit; yit != yViewport.end(); ++yit)
 			{
 				viewports.push_back(glm::ivec4(*std::prev(xit), *std::prev(yit), *xit - *std::prev(xit), *yit - *std::prev(yit)));
-				drawInfo.push_back(new DrawInfo(indx, 0, 1, 0, indx < 1 | depthTest));
-				indx++;
-			}
+				if (index < 1) // the difference between index = 0 and index = 1 is the sceneTrans flag. im not sure yet why 
+				{
+					// the inAction flag is used for picking. rndr->Picking() does ActionDraw()
+					drawInfo.push_back(new DrawInfo(index, 0, 0, 0, index < 1 | inAction | depthTest | stencilTest |
+						passStencil | blackClear | clearStencil | clearDepth | sceneTrans ));
+					drawInfo.push_back(new DrawInfo(index, 0, 1, 0, index < 1 | depthTest | clearDepth | sceneTrans));
+				}
+				else {
+					drawInfo.push_back(new DrawInfo(index, 0, 0, 0, index < 1 | inAction | depthTest | stencilTest |
+						passStencil | blackClear | clearStencil | clearDepth));
+					drawInfo.push_back(new DrawInfo(index, 0, 1, 0, index < 1 | depthTest | clearDepth));
+				}
+				index++;
+			 }
 		}
 	}
 
@@ -62,7 +74,6 @@ void Renderer::Init(Scene* scene,  std::list<int>xViewport,  std::list<int>yView
 void Renderer::Draw(int infoIndx)
 {
 	DrawInfo info = *drawInfo[infoIndx];
-
 
 	buffers[info.buffer]->Bind();
 	glViewport(viewports[info.viewportIndx].x, viewports[info.viewportIndx].y, viewports[info.viewportIndx].z, viewports[info.viewportIndx].w);
@@ -86,7 +97,8 @@ void Renderer::Draw(int infoIndx)
 	else
 		glDisable(GL_BLEND);
 
-	glm::mat4 MVP = cameras[info.cameraIndx]->GetViewProjection() * glm::inverse(cameras[info.cameraIndx]->MakeTrans());
+	glm::mat4 Projection = cameras[info.cameraIndx]->GetViewProjection();
+	glm::mat4 View = glm::inverse(cameras[info.cameraIndx]->MakeTrans());
 
 	if (info.flags & toClear)
 	{
@@ -95,7 +107,7 @@ void Renderer::Draw(int infoIndx)
 		else
 			Clear(1, 1, 1, 1);
 	}
-	scn->Draw(info.shaderIndx, MVP, info.viewportIndx, debugMode);
+	scn->Draw(info.shaderIndx, View, Projection, info.viewportIndx, debugMode);
 
 }
 
@@ -110,9 +122,7 @@ void Renderer::DrawAll()
 
 bool Renderer::Picking(int x, int y)
 {
-	//picking from camera 0 and using shader 0
 	ActionDraw();
-
 	GLint viewport[4];
 	unsigned char data[4];
 	glGetIntegerv(GL_VIEWPORT, viewport); //reading viewport parameters
