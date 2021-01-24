@@ -4,6 +4,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 
 const float PI = 2 * acos(0.0);
+const float scaleMovement = 10;
 void Bezier2D::AddToModel(IndexedModel& model, float s, float t, const std::vector<glm::vec4> subSurf, int subIndx)
 {
 }
@@ -38,6 +39,8 @@ int nCr(int n, int r)
 //    return nCr(n - 1, k - 1) + nCr(n - 1, k);
 //}
 
+// we have a small compilation error in the multiplication of subSurf
+
 //glm::vec4 dSBezier(float s, float t, std::vector<glm::vec4> subSurf, int resT) {
 //    glm::vec4 p0 = glm::vec4();
 //    glm::vec4 p1 = glm::vec4();
@@ -47,7 +50,7 @@ int nCr(int n, int r)
 //        (6 * t * (1 - t) - 3 * t * t), 3 * t * t);
 //
 //    for (int i = 0; i < 4; ++i) {
-//        p0 += nCr(resT, i) * pow((1 - s), i) * pow(s, resT - i)*subSurf[0 * resT + i];
+//        p0 += nCr(resT, i) * pow((1 - s), i) * pow(s, resT - i) * subSurf[0 * resT + i];
 //        p1 += nCr(resT, i) * pow((1 - s), i) * pow(s, resT - i) * subSurf[1 * resT + i];
 //        p2 += nCr(resT, i) * pow((1 - s), i) * pow(s, resT - i) * subSurf[2 * resT + i];
 //        p3 += nCr(resT, i) * pow((1 - s), i) * pow(s, resT - i) * subSurf[3 * resT + i];
@@ -72,11 +75,11 @@ int nCr(int n, int r)
 //
 //    return co[0] * p0 + co[1] * p1 + co[2] * p2 + co[3] * p3;
 //}
-
-glm::vec3 crossProduct(glm::vec4 v1, glm::vec4 v2) {
-    return glm::vec3(v1.y * v2.z - v1.z * v2.y, -(v1.x * v2.y - v1.z * v2.x), v1.x * v2.y - v1.y * v2.x);
-}
-
+//
+//glm::vec3 crossProduct(glm::vec4 v1, glm::vec4 v2) {
+//    return glm::vec3(v1.y * v2.z - v1.z * v2.y, -(v1.x * v2.y - v1.z * v2.x), v1.x * v2.y - v1.y * v2.x);
+//}
+//
 //glm::vec3 Bezier2D::CalcNormal(float s, float t, const std::vector<glm::vec4> subSurf)
 //{
 //    glm::vec4 dS = dSBezier(s, t, subSurf, resT);
@@ -90,6 +93,7 @@ glm::vec3 rotatePoint(glm::vec3 center, glm::vec3 point, float angle= PI /4) {
     float c = cos(angle);
     return center + glm::vec3(0, point.x * c - point.y * s, point.x * s + point.y * c);
 }
+
 void Bezier2D::CalcControlPoints(Bezier1D* c)
 {
 	int segment = 0;
@@ -213,16 +217,23 @@ void Bezier2D::MyTranslate(const glm::vec3 delta, int mode)
 glm::mat4 Bezier2D::MakeTrans()
 {
 	glm::mat4 transform = scl * rot * trans;
-	glm::mat4 moti = glm::translate(transform,glm::vec3(pos.x,pos.y,pos.z));
-	pos = moti * pos;
+	pos = rot * trans * pos;
 	return transform;
 }
 
-void Bezier2D::rotateBezier(float xoffset)
+void Bezier2D::rotateBezier(float xoffset, float yoffset)
 {
 	MyTranslate(glm::vec3(-pos.x, -pos.y, -pos.z), 0);
-	MyRotate(2, glm::vec3(0, 1, 0), 0);
+	MyRotate(xoffset, glm::vec3(0, 1, 0), 0);
+	MyRotate(xoffset, glm::vec3(1, 0, 0), 0);
 	MyTranslate(glm::vec3(pos.x, pos.y, pos.z), 0);
+}
+
+void Bezier2D::translateBezier(float xoffset, float yoffset)
+{
+	pos.x += (xoffset / scaleMovement);
+	pos.y += yoffset / scaleMovement;
+	MyTranslate(glm::vec3(xoffset, yoffset, 0), 0);
 }
 
 

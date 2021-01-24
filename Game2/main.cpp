@@ -26,7 +26,7 @@ int main(int argc,char *argv[])
 	rndr->AddCamera(glm::vec3(0, 0, 0), 0, 1, -1, 1, 3); // ortographic camera connected to drawinfo number 3, i.e. right screen
 
 	//rndr->MoveCamera(1, rndr->zTranslate, 1); //<- moving the orthographic camera is bad
-	rndr->ClearDrawFlag(2, rndr->sceneTrans); // im not sure what it does, but tamir has it
+	//rndr->ClearDrawFlag(2, rndr->sceneTrans); // im not sure what it does, but tamir has it
 
 	
 	//rndr->BindViewport2D(1);

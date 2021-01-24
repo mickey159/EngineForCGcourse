@@ -130,14 +130,6 @@ void Game2::FixControlPoints() {
 	pickedShape = -1;
 }
 
-void Game2::AddControlPoint(int indx) {
-	AddShape(Octahedron, 1, TRIANGLES);
-	pickedShape = indx + pointsStartIndx;
-	SetShapeShader(pickedShape, 2);
-	AddShapeViewport(pickedShape, 1);
-	RemoveShapeViewport(pickedShape, 0);
-}
-
 void Game2::MoveControlPoint(int indx, float x, float y) {
 	pickedShape = indx + pointsStartIndx;
 	ShapeTransformation(xTranslate, x / pointsScale);
@@ -148,16 +140,6 @@ void Game2::MoveControlPoint(int segment, int indx, float x, float y) {
 	pickedShape = segment * 3 + indx + pointsStartIndx;
 	ShapeTransformation(xTranslate, x / pointsScale);
 	ShapeTransformation(yTranslate, y / pointsScale);
-}
-
-void Game2::RelocateControlPoint(int segment, int indx) {
-	glm::vec4 cp = bez->GetControlPoint(segment, indx);
-	pickedShape = segment * 3 + indx + pointsStartIndx;
-	ShapeTransformation(ZeroTrans, 1);
-	ShapeTransformation(xScale, pointsScale);
-	ShapeTransformation(yScale, pointsScale);
-	ShapeTransformation(xTranslate, (cp.x * curveScale) / pointsScale);
-	ShapeTransformation(yTranslate, (cp.y * curveScale) / pointsScale);
 }
 
 void Game2::HideControlPoint(int indx) {
@@ -174,17 +156,6 @@ void Game2::AddControlPoint(int indx) {
 	RemoveShapeViewport(pickedShape, 0);
 }
 
-void Game2::MoveControlPoint(int indx, float x, float y) {
-	pickedShape = indx + pointsStartIndx;
-	ShapeTransformation(xTranslate, x / pointsScale);
-	ShapeTransformation(yTranslate, y / pointsScale);
-}
-
-void Game2::MoveControlPoint(int segment, int indx, float x, float y) {
-	pickedShape = segment * 3 + indx + pointsStartIndx;
-	ShapeTransformation(xTranslate, x / pointsScale);
-	ShapeTransformation(yTranslate, y / pointsScale);
-}
 
 void Game2::RelocateControlPoint(int segment, int indx) {
 	glm::vec4 cp = bez->GetControlPoint(segment, indx);
@@ -196,11 +167,6 @@ void Game2::RelocateControlPoint(int segment, int indx) {
 	ShapeTransformation(yTranslate, (cp.y * curveScale) / pointsScale);
 }
 
-void Game2::HideControlPoint(int indx) {
-	pickedShape = indx + pointsStartIndx;
-	ShapeTransformation(xScale, 1.1e-5);
-	ShapeTransformation(yScale, 1.1e-5);
-}
 // i really tried to understand why the picking isnt working......
 void Game2::Update(const glm::mat4 &View, const glm::mat4 &Projection, const glm::mat4 &Model, const int  shaderIndx)
 {	
@@ -243,11 +209,13 @@ void Game2::ContinuityStateToggle() {
 	isContinuityState = !isContinuityState;
 	std::cout << "cont" << isContinuityState << std::endl;
 }
+
 glm::vec4 getLine(glm::vec4 p0, glm::vec4 p1) {
 	float a = (p0.y - p1.y) / (p0.x - p1.x);
 	float b = p0.y - a * p0.x;
 	return glm::vec4(a, b, 0, 0);
 }
+
 float getAngle(glm::vec4 center, glm::vec4 point, float xOffset, float yOffset) {
 	glm::vec4 vectorA = point - center;
 	glm::vec4 vectorB = glm::vec4(point.x + xOffset, point.y + yOffset, 0, 0) - center;
@@ -255,6 +223,7 @@ float getAngle(glm::vec4 center, glm::vec4 point, float xOffset, float yOffset) 
 	float det = vectorA.x * vectorB.y - vectorA.y * vectorB.x;
 	return atan2(det, dot);
 }
+
 glm::vec4 rotatePoint(glm::vec4 center, glm::vec4 point, float xOffset, float yOffset) {
 	float angle = getAngle(center, point, xOffset, yOffset);
 	point -= center;
@@ -263,66 +232,68 @@ glm::vec4 rotatePoint(glm::vec4 center, glm::vec4 point, float xOffset, float yO
 	return center + glm::vec4(point.x * c - point.y * s, point.x * s + point.y * c, 0, 0);
 }
 
-
 void Game2::WhenRotate()
 {
+	// i had a problem with git versions. im quite sure the code is fine but check the parentheses
 	if (pickedShape < 22) { // do control points stuff only when we want to
 		if (pickedShape > pointsStartIndx + 6 * 3) {
-	if (pickedShape > pointsStartIndx - 1){
-		int currPoint = pickedShape - pointsStartIndx;
-		int pointIndx = currPoint % 3;
-		int pointSeg = currPoint / 3;
-		if (pointIndx != 0) { //pressed p1 or p2
-			float xOffset = (x - xprev);
-			float yOffset = (y - yprev);
-			if (xOffset > 0.1 || yOffset > 0.1)
-				return;
-			ShapeTransformation(xTranslate, xOffset);
-			ShapeTransformation(yTranslate, yOffset);
-		}
-		else if (pickedShape > pointsStartIndx - 1) {
-			int currPoint = pickedShape - pointsStartIndx;
-			int pointIndx = currPoint % 3;
-			int pointSeg = currPoint / 3;
-			if (pointIndx != 0) { //pressed p1 or p2
-				float xOffset = (x - xprev);
-				float yOffset = (y - yprev);
-				if (xOffset > 0.1 || yOffset > 0.1)
-					return;
-				glm::vec4 center = bez->GetControlPoint(pointSeg, pointIndx == 1 ? 0 : 3);
-				glm::vec4 point = bez->GetControlPoint(pointSeg, pointIndx);
-				glm::vec4 nextLoc = rotatePoint(center, point, xOffset, yOffset);
-				xOffset = nextLoc.x - point.x;
-				yOffset = nextLoc.y - point.y;
-				bez->CurveUpdate(currPoint, xOffset, yOffset, isContinuityState);
-				MoveControlPoint(currPoint, xOffset, yOffset);
-				Update3DBezier();
+			if (pickedShape > pointsStartIndx - 1) {
+				int currPoint = pickedShape - pointsStartIndx;
+				int pointIndx = currPoint % 3;
+				int pointSeg = currPoint / 3;
+				if (pointIndx != 0) { //pressed p1 or p2
+					float xOffset = (x - xprev);
+					float yOffset = (y - yprev);
+					if (xOffset > 0.1 || yOffset > 0.1)
+						return;
+					ShapeTransformation(xTranslate, xOffset);
+					ShapeTransformation(yTranslate, yOffset);
+				}
+				else if (pickedShape > pointsStartIndx - 1) {
+					int currPoint = pickedShape - pointsStartIndx;
+					int pointIndx = currPoint % 3;
+					int pointSeg = currPoint / 3;
+					if (pointIndx != 0) { //pressed p1 or p2
+						float xOffset = (x - xprev);
+						float yOffset = (y - yprev);
+						if (xOffset > 0.1 || yOffset > 0.1)
+							return;
+						glm::vec4 center = bez->GetControlPoint(pointSeg, pointIndx == 1 ? 0 : 3);
+						glm::vec4 point = bez->GetControlPoint(pointSeg, pointIndx);
+						glm::vec4 nextLoc = rotatePoint(center, point, xOffset, yOffset);
+						xOffset = nextLoc.x - point.x;
+						yOffset = nextLoc.y - point.y;
+						bez->CurveUpdate(currPoint, xOffset, yOffset, isContinuityState);
+						MoveControlPoint(currPoint, xOffset, yOffset);
+						Update3DBezier();
+					}
+					else if (pointSeg != bez->GetSegmentsNum() && pointSeg != 0) { //option b
+						glm::vec4 line = getLine(bez->GetControlPoint(pointSeg, 0), bez->GetControlPoint(pointSeg, 1));
+						glm::vec4 p2 = bez->GetControlPoint(pointSeg - 1, 2);
+						float yOffset = line[0] * p2.x + line[1] - p2.y;
+						bez->CurveUpdate(currPoint - 1, 0, yOffset, false);
+						MoveControlPoint(currPoint - 1, 0, yOffset);
+						Update3DBezier();
+					}
+				}
+				else if (x > 1) {// option e - convex hull
+					int segment = bez->GetSectionIsMouseInConvexHull(2 * (x - 1.5), 2 * y - 1);
+					if (segment == -1)
+						return;
+					bez->SplitSegment(segment, 0);
+					FixControlPoints();
+				}
 			}
-			else if (pointSeg != bez->GetSegmentsNum() && pointSeg != 0) { //option b
-				glm::vec4 line = getLine(bez->GetControlPoint(pointSeg, 0), bez->GetControlPoint(pointSeg, 1));
-				glm::vec4 p2 = bez->GetControlPoint(pointSeg - 1, 2);
-				float yOffset = line[0] * p2.x + line[1] - p2.y;
-				bez->CurveUpdate(currPoint - 1, 0, yOffset, false);
-				MoveControlPoint(currPoint - 1, 0, yOffset);
-				Update3DBezier();
-			}
-		}
-		else if (x > 1) {// option e - convex hull
-			int segment = bez->GetSectionIsMouseInConvexHull(2 * (x - 1.5), 2 * y - 1);
-			if (segment == -1)
-				return;
-			bez->SplitSegment(segment, 0);
-			FixControlPoints();
 		}
 	}
 	else {
-		bez2->rotateBezier(x - xprev);
+		bez2->rotateBezier(x* 1000 - xprev * 1000, y * 1000 - yprev * 1000); // multiply by 1000 so the floating point doesnt make it 0
 	}
 }
 
 void Game2::WhenTranslate()
 {
-	if (pickedShape < 22) { // do control points stuff only we want to
+	if (pickedShape < 22) { // do control points stuff only if we want to
 		float xOffset = (x - xprev);
 		float yOffset = (y - yprev);
 		if (xOffset > 0.1 || yOffset > 0.1)
@@ -388,7 +359,9 @@ void Game2::WhenTranslate()
 		Update3DBezier();
 		pickedShape = -1;
 	}
-
+	else {
+		bez2->translateBezier(x * 10 - xprev * 10, y * 10 - yprev * 10);
+	}
 }
 
 void Game2::Motion()

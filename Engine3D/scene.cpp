@@ -109,16 +109,17 @@ void Scene::Draw(int shaderIndx, const glm::mat4& View, const glm::mat4& Project
 	{
 		if (shapes[pickedShape]->Is2Render(viewportIndx))
 		{
-			glm::mat4 Model = shapes[pickedShape]->MakeTrans();
+			// as i understand the ps the view, projection and normal should be like this
+			glm::mat4 Model = Normal * shapes[pickedShape]->MakeTrans();
 
 			if (shaderIndx > 0)
 			{
-				Update(View * Normal, Projection, Model, shapes[pickedShape]->GetShader());
+				Update(View, Projection, Model, shapes[pickedShape]->GetShader());
 				shapes[pickedShape]->Draw(shaders[shapes[pickedShape]->GetShader()], false);
 			}
 			else
 			{ //picking - we draw the picking for Renderer::Picking()
-					Update(View * Normal, Projection, Model, 0);
+					Update(View, Projection, Model, 0);
 					shapes[pickedShape]->Draw(shaders[0], true);
 				
 			}
