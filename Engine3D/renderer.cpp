@@ -60,9 +60,9 @@ void Renderer::Init(Scene* scene,  std::list<int>xViewport,  std::list<int>yView
 					drawInfo.push_back(new DrawInfo(index, 0, 1, 0, index < 1 | depthTest | clearDepth | sceneTrans));
 				}
 				else {
-					drawInfo.push_back(new DrawInfo(index, 0, 0, 0, index < 1 | inAction | depthTest | stencilTest |
+					drawInfo.push_back(new DrawInfo(index, 1, 0, 0, index < 1 | inAction | depthTest | stencilTest |
 						passStencil | blackClear | clearStencil | clearDepth));
-					drawInfo.push_back(new DrawInfo(index, 0, 1, 0, index < 1 | depthTest | clearDepth));
+					drawInfo.push_back(new DrawInfo(index, 1, 1, 0, index < 1 | depthTest | clearDepth));
 				}
 				index++;
 			 }
