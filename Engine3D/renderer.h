@@ -68,6 +68,7 @@ public:
 	inline float GetNear(int cameraIndx) { return cameras[cameraIndx]->GetNear(); }
 	inline float GetFar(int cameraIndx) { return cameras[cameraIndx]->GetFar(); }
 	inline float GetAngle(int cameraIndx) { return cameras[cameraIndx]->GetAngle(); }
+	inline bool GetDepth() { return depth; }
 	inline void SetDrawFlag(int infoIndx,unsigned int flag) { drawInfo[infoIndx]->SetFlags(flag); }
 	inline void ClearDrawFlag(int infoIndx, unsigned int flag) { drawInfo[infoIndx]->ClearFlags(flag); }
 	bool checkViewport(int x, int y, int viewportIndx);

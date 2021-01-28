@@ -21,6 +21,8 @@ public:
 	void WhenTranslate();
 	void Motion();
 	
+	void scrollShape(int yoffset); // added a function to move the shape when scrolling
+
 	unsigned int TextureDesine(int width, int height);
 	~Game2(void);
 	inline void ResetCounter() { tmp = counter; counter = 0; }

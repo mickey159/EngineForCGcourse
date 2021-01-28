@@ -43,6 +43,7 @@ public:
 	virtual ~Scene(void);
 
 	void ShapeTransformation(int type, float amt);
+	
 
 	bool Picking(unsigned char data[4]);
 
@@ -62,6 +63,7 @@ public:
 
 	inline void SetShapeMaterial(int shpIndx, int materialIndx) { shapes[shpIndx]->SetMaterial(materialIndx); }
 	inline void SetShapeShader(int shpIndx, int shdrIndx) { shapes[shpIndx]->SetShader(shdrIndx); }
+	
 
 private:
 
@@ -75,7 +77,7 @@ protected:
 	std::vector<Texture*> textures;
 	std::vector<Material*> materials;
 
-	int pickedShape;
+	int pickedShape; 
 
 	bool isActive;
 };

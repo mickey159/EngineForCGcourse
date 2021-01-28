@@ -109,17 +109,19 @@ void Scene::Draw(int shaderIndx, const glm::mat4& View, const glm::mat4& Project
 	{
 		if (shapes[pickedShape]->Is2Render(viewportIndx))
 		{
-			glm::mat4 Model = shapes[pickedShape]->MakeTrans();
+			// as i understand the ps the view, projection and normal should be like this
+			glm::mat4 Model = Normal * shapes[pickedShape]->MakeTrans();
 
 			if (shaderIndx > 0)
 			{
-				Update(View * Normal, Projection, Model, shapes[pickedShape]->GetShader());
+				Update(View, Projection, Model, shapes[pickedShape]->GetShader());
 				shapes[pickedShape]->Draw(shaders[shapes[pickedShape]->GetShader()], false);
 			}
 			else
-			{ //picking
-				Update(View * Normal, Projection, Model, 0);
-				shapes[pickedShape]->Draw(shaders[0], true);
+			{ //picking - we draw the picking for Renderer::Picking()
+					Update(View, Projection, Model, 0);
+					shapes[pickedShape]->Draw(shaders[0], true);
+				
 			}
 		}
 	}
@@ -169,6 +171,8 @@ void Scene::ShapeTransformation(int type, float amt)
 
 }
 
+
+
 bool Scene::Picking(unsigned char data[4])
 {
 		pickedShape = -1;
@@ -176,7 +180,12 @@ bool Scene::Picking(unsigned char data[4])
 		if (data[0] > 0)
 		{
 			pickedShape = data[0]-1; //r 
-			return true;
+			if (pickedShape != 0) { // avoid cubemap
+				return true;
+			}	
+			else {
+				pickedShape = -1;
+			}
 		}
 		return false;
 		//WhenPicked();	

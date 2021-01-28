@@ -20,8 +20,13 @@ public:
 	IndexedModel GetSurface();	//generates a model for MeshConstructor Constructor
 	glm::vec4 GetPointOnSurface(int segmentS, int segmentT, int s, int t);  //returns a point on the surface in the requested segment for value of t and s
 	glm::vec3 GetNormal(int segmentS, int segmentT, int s, int t); //returns a normal of a point on the surface in the requested segment for value of t and s
-	inline int GetSegmentsNum() const { return controlPoints.size() / 16; } // divide by 16 to get segmentsNum, then divide by 4 to get number of segments of each type - S or T
-	
+	inline int GetSegmentsNum() const { return controlPoints.size() / 16; } // divide by 16 to get segmentsNum
 	//void MoveControlPoint(int segmentS, int segmentT, int indx, bool preserveC1);
 	~Bezier2D(void);
+	void MyTranslate(const glm::vec3 delta, int mode);
+	glm::mat4 MakeTrans();
+	glm::vec4 pos; // position of the center of the object. starting in (0,0,0)
+	void rotateBezier(float xoffset, float yoffset);
+	void translateBezier(float xoffset, float yoffset);
+	
 };
