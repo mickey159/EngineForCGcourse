@@ -33,6 +33,7 @@ public:
 	void RemakeBezier(int segNum);
 	void FixControlPoints();
 	void ContinuityStateToggle();
+	void movePlane(double x, double y);
 private:
 	unsigned int counter;
 	unsigned int tmp;
@@ -45,5 +46,6 @@ private:
 	float curveScale;
 	Bezier1D* bez;
 	Bezier2D* bez2;
+	Bezier2D* bez22;
 };
 

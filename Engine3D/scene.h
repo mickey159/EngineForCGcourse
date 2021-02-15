@@ -50,6 +50,7 @@ public:
 	inline void SetParent(int indx, int newValue) { chainParents[indx] = newValue; }
 
 	void ReadPixel();
+	inline int getPickedShape() { return pickedShape; }
 
 	inline void Activate() { isActive = true; }
 	inline void Deactivate() { isActive = false; }

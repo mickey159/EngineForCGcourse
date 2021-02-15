@@ -2,6 +2,12 @@
 #include <iostream>
 #include "GL/glew.h"
 
+float planeScale = 1;
+float planeSize = 2.5;
+
+float mapRange(float num, float total, float minR, float maxR) {
+	return num * ((maxR - minR) / total) + minR;
+}
 static void printMat(const glm::mat4 mat)
 {
 	std::cout<<" matrix:"<<std::endl;
@@ -27,6 +33,7 @@ Game2::Game2() : Scene()
 
 	bez = new Bezier1D(3, pps, LINES);
 	bez2 = new Bezier2D(bez, pps, pps, QUADS, 0);
+	bez22 = new Bezier2D(bez, pps, pps, QUADS, 0);
 }
 
 
@@ -39,6 +46,7 @@ void Game2::Init()
 	AddShader("../res/shaders/basicShader");
 	AddShader("../res/shaders/basicShader2");
 	AddShader("../res/shaders/cubemapShader");
+	AddShader("../res/shaders/pickingShader"); // for blending
 
 	AddTexture("../res/textures/box0.bmp", 2);
 	AddTexture("../res/textures/cubeMap/DayLight Box_", 3);
@@ -73,6 +81,21 @@ void Game2::Init()
 
 	//---------------------3D BEZIER--------------------------
 	Add3DBezier();
+	//------------------
+
+	AddShape(Plane, -2, TRIANGLE_STRIP); // parent is the camera
+	pickedShape = 24;
+	SetShapeShader(pickedShape, 4);
+	ShapeTransformation(xScale, 50);
+	ShapeTransformation(yScale, 50);
+	AddShapeViewport(pickedShape, 2);
+	RemoveShapeViewport(pickedShape, 0);
+
+	/*ShapeTransformation(xTranslate, planeSize/2);
+	ShapeTransformation(yTranslate, -planeSize/2);
+	ShapeTransformation(xScale, planeScale);
+	ShapeTransformation(yScale, planeScale);
+	pickedShape = -1;*/
 
 }
 
@@ -82,6 +105,10 @@ void Game2::Add3DBezier() {
 	//pickedShape = pointsStartIndx + 6 * 3 + numOfBeziers;
 	AddShape(bez2, -1);
 	pickedShape = 22;
+	SetShapeShader(pickedShape, 2);
+	numOfBeziers++;
+	AddShape(bez22, -1);
+	pickedShape = 23;
 	SetShapeShader(pickedShape, 2);
 	numOfBeziers++;
 }
@@ -156,7 +183,6 @@ void Game2::AddControlPoint(int indx) {
 	RemoveShapeViewport(pickedShape, 0);
 }
 
-
 void Game2::RelocateControlPoint(int segment, int indx) {
 	glm::vec4 cp = bez->GetControlPoint(segment, indx);
 	pickedShape = segment * 3 + indx + pointsStartIndx;
@@ -167,12 +193,13 @@ void Game2::RelocateControlPoint(int segment, int indx) {
 	ShapeTransformation(yTranslate, (cp.y * curveScale) / pointsScale);
 }
 
-// i really tried to understand why the picking isnt working......
+
 void Game2::Update(const glm::mat4 &View, const glm::mat4 &Projection, const glm::mat4 &Model, const int  shaderIndx)
 {	
 	if(counter)
 		counter++;
 	Shader *s = shaders[shaderIndx];
+	// r = pickedShape + 1 is great, but why is the bit shifting here? it looks like it does nothing
 	int r = ((pickedShape+1) & 0x000000FF) >>  0;
 	int g = ((pickedShape+1) & 0x0000FF00) >>  8;
 	int b = ((pickedShape+1) & 0x00FF0000) >> 16;
@@ -188,12 +215,16 @@ void Game2::Update(const glm::mat4 &View, const glm::mat4 &Projection, const glm
 	s->SetUniform1i("sampler1", materials[shapes[pickedShape]->GetMaterial()]->GetSlot(0));
 	if(shaderIndx!=1)
 		s->SetUniform1i("sampler2", materials[shapes[pickedShape]->GetMaterial()]->GetSlot(1));
-	s->SetUniform4f("lightColor", r / 255.0, g / 255.0, b / 255.0, 0);
+	if(shaderIndx != 0)
+		s->SetUniform4f("lightColor",0.2f, 0.9f, 0.2f, 0.5f); // just a color and alpha = 0.5 for blending
+	else
+		s->SetUniform4f("lightColor", r / 255.0, g / 255.0, b / 255.0, 0);
 	s->SetUniform1ui("counter", counter);
 	s->SetUniform1f("x", x);
 	s->SetUniform1f("y", y);
 	s->Unbind();
 }
+
 
 void Game2::UpdatePosition(float xpos,  float ypos)
 {
@@ -209,6 +240,7 @@ void Game2::ContinuityStateToggle() {
 	isContinuityState = !isContinuityState;
 	std::cout << "cont" << isContinuityState << std::endl;
 }
+
 
 glm::vec4 getLine(glm::vec4 p0, glm::vec4 p1) {
 	float a = (p0.y - p1.y) / (p0.x - p1.x);
@@ -232,10 +264,11 @@ glm::vec4 rotatePoint(glm::vec4 center, glm::vec4 point, float xOffset, float yO
 	return center + glm::vec4(point.x * c - point.y * s, point.x * s + point.y * c, 0, 0);
 }
 
+
 void Game2::WhenRotate()
 {
 	// i had a problem with git versions. im quite sure the code is fine but check the parentheses
-	if (pickedShape < 22) { // do control points stuff only when we want to
+	if (pickedShape < 22 && pickedShape > 0) { // do control points stuff only when we want to
 		if (pickedShape > pointsStartIndx + 6 * 3) {
 			if (pickedShape > pointsStartIndx - 1) {
 				int currPoint = pickedShape - pointsStartIndx;
@@ -286,14 +319,32 @@ void Game2::WhenRotate()
 			}
 		}
 	}
-	else {
-		bez2->rotateBezier(x* 1000 - xprev * 1000, y * 1000 - yprev * 1000); // multiply by 1000 so the floating point doesnt make it 0
+	//if (pickedShape == -2) { // "draw" the blend plane
+	//	pickedShape = 24;
+	//	float size = planeScale * planeSize;
+	//	int floatmul = 1000;
+	//	float almostzero = planeScale;//
+	//	float xOffset = (x * floatmul - xprev * floatmul) / floatmul; // multiply and divide for floating point
+	//	float yOffset = (y * floatmul - yprev * floatmul) / floatmul;
+	//	if (xOffset < almostzero)
+	//		xOffset = almostzero;
+	//	if (yOffset < almostzero)
+	//		yOffset = almostzero;
+	//	ShapeTransformation(xScale, abs(xOffset)/ size);
+	//	ShapeTransformation(yScale, abs(yOffset) / size);
+	//	planeSize = planeSize * (abs(xOffset) / size);
+	//	pickedShape = -2;
+	//}
+		if (pickedShape == 22 || pickedShape == 23) {
+			ShapeTransformation(xRotate, x * 1000 - xprev * 1000);
+			ShapeTransformation(yRotate, y * 1000 - yprev * 1000); // multiply by 1000 so the floating point doesnt make it 0
 	}
 }
 
+
 void Game2::WhenTranslate()
 {
-	if (pickedShape < 22) { // do control points stuff only if we want to
+	if (pickedShape < 22 && pickedShape > 0) { // do control points stuff only if we want to
 		float xOffset = (x - xprev);
 		float yOffset = (y - yprev);
 		if (xOffset > 0.1 || yOffset > 0.1)
@@ -359,10 +410,13 @@ void Game2::WhenTranslate()
 		Update3DBezier();
 		pickedShape = -1;
 	}
-	else {
-		bez2->translateBezier(x * 10 - xprev * 10, y * 10 - yprev * 10);
+	else if (pickedShape == 22 || pickedShape == 23) {
+		ShapeTransformation(xTranslate, x * 10 - xprev * 10);
+		ShapeTransformation(yTranslate, y * 10 - yprev * 10);
+		//bez2->translateBezier(x * 10 - xprev * 10, y * 10 - yprev * 10);
 	}
 }
+
 
 void Game2::Motion()
 {

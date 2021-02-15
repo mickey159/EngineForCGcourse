@@ -55,15 +55,20 @@ void Renderer::Init(Scene* scene,  std::list<int>xViewport,  std::list<int>yView
 				if (index < 1) // the difference between index = 0 and index = 1 is the sceneTrans flag. im not sure yet why 
 				{
 					// the inAction flag is used for picking. rndr->Picking() does ActionDraw()
-					drawInfo.push_back(new DrawInfo(index, 0, 0, 0, index < 1 | inAction | depthTest | stencilTest |
-						passStencil | blackClear | clearStencil | clearDepth | sceneTrans ));
-					drawInfo.push_back(new DrawInfo(index, 0, 1, 0, index < 1 | depthTest | clearDepth | sceneTrans));
+					drawInfo.push_back(new DrawInfo(index, 0, 0, 0, index < 1 | inAction | depthTest | blackClear ));
+					// drawing drawinfo
+					drawInfo.push_back(new DrawInfo(index, 0, 1, 0, index < 1 | scaleAbit| depthTest 
+						| sceneTrans | stencilTest | passStencil | clearStencil));
+					// blending drawinfo
+					//drawInfo.push_back(new DrawInfo(index, 0, 2, 0, index < 1 | blend | stencilTest | passStencil));
+					
 				}
 				else {
 					drawInfo.push_back(new DrawInfo(index, 1, 0, 0, index < 1 | inAction | depthTest | stencilTest |
-						passStencil | blackClear | clearStencil | clearDepth));
-					drawInfo.push_back(new DrawInfo(index, 1, 1, 0, index < 1 | depthTest | clearDepth));
+						passStencil | blackClear | clearStencil));
+					drawInfo.push_back(new DrawInfo(index, 1, 1, 0, index < 1 | depthTest));
 				}
+
 				index++;
 			 }
 		}
@@ -77,13 +82,42 @@ void Renderer::Draw(int infoIndx)
 
 	buffers[info.buffer]->Bind();
 	glViewport(viewports[info.viewportIndx].x, viewports[info.viewportIndx].y, viewports[info.viewportIndx].z, viewports[info.viewportIndx].w);
-	if (info.flags & scissorTest)
+	if (info.flags & scissorTest) {
 		glEnable(GL_SCISSOR_TEST);
+		int x = glm::min(xrel, xold);
+		int y = glm::min(viewports[info.viewportIndx].w - yrel, viewports[info.viewportIndx].w - yold);
+		glScissor(x, y, glm::abs(xrel - xold), glm::abs(yrel - y));
+	}
 	else
 		glDisable(GL_SCISSOR_TEST);
 
-	if (info.flags & stencilTest)
+	if (info.flags & scaleAbit) {
+		if (scn->getPickedShape() > 0) {
+			scn->ShapeTransformation(xScale, 1.1);
+			scn->ShapeTransformation(yScale, 1.1);
+			scn->ShapeTransformation(zScale, 1.1);
+			(*drawInfo[infoIndx]).flags &= ~scaleAbit;
+		}
+	}
+
+	if (info.flags & stencilTest) {
 		glEnable(GL_STENCIL_TEST);
+		if (info.flags & passStencil) {
+			glStencilFunc(GL_ALWAYS, 1, 0xFF);
+			glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
+		}
+		else {
+			if (info.flags & stencil2) {
+				glStencilFunc(GL_EQUAL, 1, 0xFF);
+				glStencilOp(GL_KEEP, GL_KEEP, GL_ZERO);
+			}
+			else {
+				glStencilFunc(GL_EQUAL, 0, 0xFF);
+				glStencilOp(GL_KEEP, GL_KEEP, GL_ZERO);
+			}
+		}
+	}
+
 	else
 		glDisable(GL_STENCIL_TEST);
 
@@ -92,8 +126,10 @@ void Renderer::Draw(int infoIndx)
 	else
 		glDisable(GL_DEPTH_TEST);
 
-	if (info.flags & blend)
+	if (info.flags & blend) {
 		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+	}
 	else
 		glDisable(GL_BLEND);
 
@@ -115,8 +151,10 @@ void Renderer::DrawAll()
 {
 	for (int i =   0; i < drawInfo.size(); i++)
 	{
-		if (!(drawInfo[i]->flags & inAction))
-			Draw( i);
+		// if all normal, draw normally
+		if ( !(drawInfo[i]->flags & inAction) && !(drawInfo[i]->flags & inAction2)) {
+			Draw(i);
+		}
 	}
 }
 
@@ -285,6 +323,16 @@ void Renderer::ActionDraw()
 	for (int i = 0; i < drawInfo.size(); i++)
 	{
 		if (drawInfo[i]->flags & inAction)
+			Draw(i);
+	}
+
+}
+
+void Renderer::ActionDraw2()
+{
+	for (int i = 0; i < drawInfo.size(); i++)
+	{
+		if (drawInfo[i]->flags & inAction2)
 			Draw(i);
 	}
 

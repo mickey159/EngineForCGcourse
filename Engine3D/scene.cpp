@@ -101,7 +101,7 @@ void Scene::ReplaceShape(int shpIndx, Shape* shp)
 
 void Scene::Draw(int shaderIndx, const glm::mat4& View, const glm::mat4& Projection, int viewportIndx, unsigned int flags)
 {
-	glm::mat4 Normal = MakeTrans();
+	glm::mat4 SceneTrans = MakeTrans();
 
 	int p = pickedShape;
 
@@ -109,9 +109,14 @@ void Scene::Draw(int shaderIndx, const glm::mat4& View, const glm::mat4& Project
 	{
 		if (shapes[pickedShape]->Is2Render(viewportIndx))
 		{
-			// as i understand the ps the view, projection and normal should be like this
-			glm::mat4 Model = Normal * shapes[pickedShape]->MakeTrans();
-
+			// as i understand the ps - the view, projection and normal should be like this
+			glm::mat4 Model = shapes[pickedShape]->MakeTrans();
+			//int p = chainParents[pickedShape];
+			////if (p >= 0) // move the frames with the objects
+			////	Model = shapes[p]->MakeTrans() * Model;
+			//if (p == -2) // the plane moves with the camera
+			//	Model = glm::inverse(View) * Model;
+			Model = SceneTrans * Model;
 			if (shaderIndx > 0)
 			{
 				Update(View, Projection, Model, shapes[pickedShape]->GetShader());
@@ -121,7 +126,6 @@ void Scene::Draw(int shaderIndx, const glm::mat4& View, const glm::mat4& Project
 			{ //picking - we draw the picking for Renderer::Picking()
 					Update(View, Projection, Model, 0);
 					shapes[pickedShape]->Draw(shaders[0], true);
-				
 			}
 		}
 	}
@@ -180,41 +184,24 @@ bool Scene::Picking(unsigned char data[4])
 		if (data[0] > 0)
 		{
 			pickedShape = data[0]-1; //r 
-			if (pickedShape != 0) { // avoid cubemap
+			if (pickedShape != 0) { 
 				return true;
-			}	
-			else {
-				pickedShape = -1;
 			}
 		}
 		return false;
 		//WhenPicked();	
 }
-//return coordinates in global system for a tip of arm position is local system 
 void Scene::MouseProccessing(int button, int xrel, int yrel)
 {
-	//if (pickedShape == -1)
-	//{
+
 	if (button == 1)
 	{
-		/*pickedShape = 0;
-		ShapeTransformation(xTranslate, xrel / 80.0f);
-		pickedShape = -1; */
-		//MyTranslate(glm::vec3(-xrel / 80.0f, 0, 0), 0);
-		//MyTranslate(glm::vec3(0, yrel / 80.0f, 0), 0);
 		WhenTranslate();
 	}
 	else
 	{
-		/*pickedShape = 0;
-		ShapeTransformation(yRotate, xrel / 2.0f);
-		pickedShape = -1;*/
-		//MyRotate(-xrel / 2.0f, glm::vec3(0, 1, 0), 0);
-		//MyRotate(-yrel / 2.0f, glm::vec3(1, 0, 0), 1);
 		WhenRotate();
 	}
-	//}
-
 }
 
 void Scene::ZeroShapesTrans()

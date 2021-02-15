@@ -7,7 +7,7 @@
 const float PI = 3.14;
 /*
 pick in mouse callback, so until the mouse is realesed we are picking the same shape
-rotate/translate in position callback and mova shape "forward"/"backward" in scroll callback
+rotate/translate in position callback and move shape "forward"/"backward" in scroll callback
 */
 void mouse_callback(GLFWwindow* window, int button, int action, int mods)
 {
@@ -15,13 +15,15 @@ void mouse_callback(GLFWwindow* window, int button, int action, int mods)
 	Game2* scn = (Game2*)rndr->GetScene();
 	if (action == GLFW_PRESS)
 	{
+		rndr->ClearDrawFlag(4, rndr->inAction2); // clear the flag so DrawAll draws the blend
 		double x2, y2;
 		glfwGetCursorPos(window, &x2, &y2);
 		if (rndr->Picking((int)x2, (int)y2))		
-			scn->ResetCounter();
+			scn->SetCounter();
 	}
-	else
-		scn->SetCounter();
+	if (action == GLFW_RELEASE) {
+		rndr->SetDrawFlag(4, rndr->inAction2);
+	}
 
 }
 
@@ -40,7 +42,6 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 {
-
 	Renderer* rndr = (Renderer*)glfwGetWindowUserPointer(window);
 	Game2* scn = (Game2*)rndr->GetScene();
 	rndr->UpdatePosition(xpos, ypos);
