@@ -116,9 +116,9 @@ void Scene::Draw(int shaderIndx, const glm::mat4& View, const glm::mat4& Project
 		{
 			// as i understand the ps - the view, projection and normal should be like this
 			glm::mat4 Model = shapes[pickedShape]->MakeTrans();
-			//int p = chainParents[pickedShape];
-			////if (p >= 0) // move the frames with the objects
-			////	Model = shapes[p]->MakeTrans() * Model;
+			int p = chainParents[pickedShape];
+			if (p >= 0) // move the frames with the objects
+				Model = shapes[p]->MakeTrans() * Model;
 			//if (p == -2) // the plane moves with the camera
 			//	Model = glm::inverse(View) * Model;
 			Model = SceneTrans * Model;

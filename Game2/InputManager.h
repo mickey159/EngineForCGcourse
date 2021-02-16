@@ -15,7 +15,6 @@ void mouse_callback(GLFWwindow* window, int button, int action, int mods)
 	Game2* scn = (Game2*)rndr->GetScene();
 	if (action == GLFW_PRESS)
 	{
-		//clearPicks
 		scn->clearPicks();
 		// set/clear the passStencil around here, so we get to the else part
 		// after the else part set the stencil2 flag

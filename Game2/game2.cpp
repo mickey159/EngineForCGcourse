@@ -110,6 +110,13 @@ void Game2::Add3DBezier() {
 	AddShape(bez22, -1);
 	pickedShape = 24;
 	SetShapeShader(pickedShape, 2);
+	AddShapeCopy(pickedShape, pickedShape, LINE_LOOP);  // inherits viewport from parent
+	pickedShape = 25;
+	ShapeTransformation(xScale, 1.1);
+	ShapeTransformation(yScale, 1.1);
+	ShapeTransformation(zScale, 1.1);
+	ShapeTransformation(zTranslate, -0.2);
+	SetShapeShader(25, 4);
 	numOfBeziers++;
 }
 
@@ -181,7 +188,6 @@ void Game2::AddControlPoint(int indx) {
 	SetShapeShader(pickedShape, 2);
 	AddShapeViewport(pickedShape, 1);
 	RemoveShapeViewport(pickedShape, 0);
-	//AddShapeCopy(pickedShape, pickedShape, LINE_LOOP);  // inherits viewport from parent
 }
 
 void Game2::RelocateControlPoint(int segment, int indx) {
