@@ -15,16 +15,21 @@ void mouse_callback(GLFWwindow* window, int button, int action, int mods)
 	Game2* scn = (Game2*)rndr->GetScene();
 	if (action == GLFW_PRESS)
 	{
-		rndr->ClearDrawFlag(4, rndr->inAction2); // clear the flag so DrawAll draws the blend
-		double x2, y2;
-		glfwGetCursorPos(window, &x2, &y2);
-		if (rndr->Picking((int)x2, (int)y2))		
-			scn->SetCounter();
+		//clearPicks
+		scn->clearPicks();
+		// set/clear the passStencil around here, so we get to the else part
+		// after the else part set the stencil2 flag
+		double xpos, ypos;
+		glfwGetCursorPos(window, &xpos, &ypos);
+		//rndr->UpdatePosition(xpos, ypos);
+		rndr->updatePress(xpos, ypos);
+		if (!rndr->Picking((int)xpos, (int)ypos))		
+			rndr->ClearDrawFlag(4, rndr->inAction2); // clear the flag so DrawAll draws the blend
 	}
 	if (action == GLFW_RELEASE) {
 		rndr->SetDrawFlag(4, rndr->inAction2);
+		rndr->pickMany();
 	}
-
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
@@ -44,8 +49,8 @@ void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 {
 	Renderer* rndr = (Renderer*)glfwGetWindowUserPointer(window);
 	Game2* scn = (Game2*)rndr->GetScene();
-	rndr->UpdatePosition(xpos, ypos);
 	scn->UpdatePosition(xpos, ypos);
+	rndr->UpdatePosition(xpos, ypos);
 	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
 		scn->WhenRotate();
 	}

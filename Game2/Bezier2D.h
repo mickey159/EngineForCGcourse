@@ -26,7 +26,7 @@ public:
 	//void MyTranslate(const glm::vec3 delta, int mode);
 	//glm::mat4 MakeTrans();
 	glm::vec4 pos; // position of the center of the object. starting in (0,0,0)
-	void rotateBezier(float xoffset, float yoffset);
-	void translateBezier(float xoffset, float yoffset);
+	//void rotateBezier(float xoffset, float yoffset);
+	//void translateBezier(float xoffset, float yoffset);
 	
 };

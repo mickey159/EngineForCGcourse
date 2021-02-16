@@ -26,8 +26,8 @@ int main(int argc,char *argv[])
 	rndr->AddCamera(glm::vec3(0, 0, 0), 0, 1, -1, 1, 3); // ortographic camera connected to drawinfo number 3, i.e. right screen
 	//ps of 24/12, minute 18 tamir adds a viewport and drawinfo for blending
 	rndr->AddViewport(0, 0, DISPLAY_WIDTH / 2, DISPLAY_HEIGHT);
-	//rndr->inAction2 | rndr->scissorTest | rndr->blend
-	rndr->AddDraw(2, 0, 4, 0, rndr->inAction2| rndr->scissorTest | rndr->blend);
+	rndr->AddDraw(2, 0, 4, 0, rndr->inAction2| rndr->scissorTest | rndr->blend |
+		rndr->stencilTest | rndr->passStencil | rndr->stencil2);
 	//rndr->BindViewport2D(1);
 	unsigned int indx = 0;
 	while(!display.CloseWindow())

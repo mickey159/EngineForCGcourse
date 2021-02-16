@@ -82,11 +82,12 @@ void Renderer::Draw(int infoIndx)
 
 	buffers[info.buffer]->Bind();
 	glViewport(viewports[info.viewportIndx].x, viewports[info.viewportIndx].y, viewports[info.viewportIndx].z, viewports[info.viewportIndx].w);
+
 	if (info.flags & scissorTest) {
 		glEnable(GL_SCISSOR_TEST);
-		int x = glm::min(xrel, xold);
-		int y = glm::min(viewports[info.viewportIndx].w - yrel, viewports[info.viewportIndx].w - yold);
-		glScissor(x, y, glm::abs(xrel - xold), glm::abs(yrel - y));
+		int x = glm::min(xWhenPress, xold);
+		int y = glm::min(viewports[info.viewportIndx].w - yWhenPress, viewports[info.viewportIndx].w - yold);
+		glScissor(x, y, glm::abs(xWhenPress - xold), glm::abs(yWhenPress - yold));
 	}
 	else
 		glDisable(GL_SCISSOR_TEST);
@@ -254,6 +255,14 @@ void Renderer::UpdatePosition(float xpos, float ypos)
 	yold = ypos;
 }
 
+void Renderer::updatePress(int xpos, int ypos)
+{
+	xWhenPress = xpos;
+	yWhenPress = ypos;
+	xold = xpos;
+	yold = ypos;
+}
+
 void Renderer::Resize(int width, int height)
 {
 	//not working properly
@@ -311,6 +320,13 @@ Renderer::~Renderer()
 	
 }
 
+void Renderer::pickMany()
+{
+	int x = glm::min(xWhenPress, xold);
+	int y = glm::min(viewports[2].w - yWhenPress, viewports[2].w - yold);
+	scn->pickMany(x, y, glm::abs(xWhenPress - xold), glm::abs(yWhenPress - yold));
+}
+
 void Renderer::Clear(float r, float g, float b, float a)
 {
 	glClearColor(r, g, b, a);
@@ -323,16 +339,6 @@ void Renderer::ActionDraw()
 	for (int i = 0; i < drawInfo.size(); i++)
 	{
 		if (drawInfo[i]->flags & inAction)
-			Draw(i);
-	}
-
-}
-
-void Renderer::ActionDraw2()
-{
-	for (int i = 0; i < drawInfo.size(); i++)
-	{
-		if (drawInfo[i]->flags & inAction2)
 			Draw(i);
 	}
 

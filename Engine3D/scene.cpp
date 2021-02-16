@@ -3,6 +3,7 @@
 #include "scene.h"
 #include <iostream>
 #include <Game2\Bezier1D.h>
+#include <Game2/Bezier2D.h>
 
 static void printMat(const glm::mat4 mat)
 {
@@ -13,6 +14,10 @@ static void printMat(const glm::mat4 mat)
 			printf("%f ", mat[j][i]);
 		printf("\n");
 	}
+}
+
+float mapRange(float num, float total, float minR, float maxR) {
+	return num * ((maxR - minR) / total) + minR;
 }
 
 Scene::Scene()
@@ -165,6 +170,11 @@ void Scene::ShapeTransformation(int type, float amt)
 		case zScale:
 			shapes[pickedShape]->MyScale(glm::vec3(1, 1, amt));
 			break;
+		case scaleAll:
+			shapes[pickedShape]->MyScale(glm::vec3(1, 1, amt));
+			shapes[pickedShape]->MyScale(glm::vec3(1, amt, 1));
+			shapes[pickedShape]->MyScale(glm::vec3(amt, 1, 1));
+			break;
 		case ZeroTrans:
 			shapes[pickedShape]->ZeroTrans();
 			break;
@@ -176,7 +186,6 @@ void Scene::ShapeTransformation(int type, float amt)
 }
 
 
-
 bool Scene::Picking(unsigned char data[4])
 {
 		pickedShape = -1;
@@ -184,13 +193,15 @@ bool Scene::Picking(unsigned char data[4])
 		if (data[0] > 0)
 		{
 			pickedShape = data[0]-1; //r 
-			if (pickedShape != 0) { 
+			if (pickedShape != 0) { // if we picked the cubemap start drawing the blend
 				return true;
 			}
+			return false; // false only if we picked the cubemap
 		}
-		return false;
+		return true;
 		//WhenPicked();	
 }
+
 void Scene::MouseProccessing(int button, int xrel, int yrel)
 {
 
@@ -201,6 +212,41 @@ void Scene::MouseProccessing(int button, int xrel, int yrel)
 	else
 	{
 		WhenRotate();
+	}
+}
+
+void Scene::clearPicks()
+{
+	pickedShapes.clear();
+}
+
+bool pointInRect(int x, int y, int x1, int y1, int width, int height)
+{
+	return (x > x1 && x < x1 + width &&
+		y > y1 && y < y1 + height);
+}
+
+void Scene::pickMany(int x, int y, float width, float height)
+{
+	for (int i = 23; i < shapes.size(); i++) {
+		glm::vec4 pos = shapes[i]->MakeTrans() * glm::vec4(0.001, 0.001, 0.001, 1);
+		std::cout << "pos.x: " << pos.x << std::endl;
+		std::cout << "pos.y: " << pos.y << std::endl;
+		std::cout << "pos.z: " << pos.z << std::endl;
+		std::cout << "pickMany doing mapRange." << std::endl;
+		std::cout << "mapRange(x + 6) is "<< mapRange(pos.x + 6, 12, 0, 840) << std::endl;
+		std::cout << "mapRange(y + 6) is " << mapRange(pos.y + 6, 12, 0, 840) << std::endl;
+
+
+		if (pointInRect(mapRange(pos.x + 6, 12, 0, 840),
+						mapRange(pos.y + 6, 12, 0, 840),
+						x, y, width, height))
+			pickedShapes.push_back(i);
+	}
+	//print
+	std::cout << "picked shapes:" << std::endl;
+	for (int i = 0; i < pickedShapes.size(); i++) {
+		std::cout << pickedShapes[i] << std::endl;
 	}
 }
 

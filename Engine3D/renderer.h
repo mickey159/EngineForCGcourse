@@ -53,7 +53,7 @@ public:
 	void Draw(int infoIndx = 1);
 	void DrawAll();
 
-
+	void updatePress(int xpos, int ypos);
 	void Resize(int width, int height);
 	void UpdatePosition(float xpos, float ypos);
 	void AddCamera(const glm::vec3& pos, float fov, float relationWH, float zNear, float zFar, int infoIndx = -1);
@@ -75,7 +75,7 @@ public:
 	inline void ClearDrawFlag(int infoIndx, unsigned int flag) { drawInfo[infoIndx]->ClearFlags(flag); }
 	bool checkViewport(int x, int y, int viewportIndx);
 	~Renderer();
-	void ActionDraw2();
+	void pickMany();
 private:
 	std::vector<Camera*> cameras;
 	Scene* scn;
@@ -88,6 +88,8 @@ private:
 	std::vector<DrawBuffer*> buffers;
 	int materialIndx2D;
 	int toDrawIndx;
+	int xWhenPress;
+	int yWhenPress;
 	
 };
 

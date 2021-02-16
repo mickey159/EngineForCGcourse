@@ -5,9 +5,6 @@
 float planeScale = 1;
 float planeSize = 2.5;
 
-float mapRange(float num, float total, float minR, float maxR) {
-	return num * ((maxR - minR) / total) + minR;
-}
 static void printMat(const glm::mat4 mat)
 {
 	std::cout<<" matrix:"<<std::endl;
@@ -79,17 +76,20 @@ void Game2::Init()
 		AddControlPoint(i);
 	RemakeBezier(3);
 
-	//---------------------3D BEZIER--------------------------
-	Add3DBezier();
-	//------------------
-
+	//--------------------- blending Plane-------------------------
 	AddShape(Plane, -2, TRIANGLE_STRIP); // parent is the camera
-	pickedShape = 24;
+	pickedShape = 22;
 	SetShapeShader(pickedShape, 4);
 	ShapeTransformation(xScale, 50);
 	ShapeTransformation(yScale, 50);
 	AddShapeViewport(pickedShape, 2);
 	RemoveShapeViewport(pickedShape, 0);
+
+	//---------------------3D BEZIER--------------------------
+	Add3DBezier();
+	//------------------
+
+	
 
 	/*ShapeTransformation(xTranslate, planeSize/2);
 	ShapeTransformation(yTranslate, -planeSize/2);
@@ -104,11 +104,11 @@ void Game2::Add3DBezier() {
 	int numOfBeziers = 0;
 	//pickedShape = pointsStartIndx + 6 * 3 + numOfBeziers;
 	AddShape(bez2, -1);
-	pickedShape = 22;
+	pickedShape = 23;
 	SetShapeShader(pickedShape, 2);
 	numOfBeziers++;
 	AddShape(bez22, -1);
-	pickedShape = 23;
+	pickedShape = 24;
 	SetShapeShader(pickedShape, 2);
 	numOfBeziers++;
 }
@@ -181,6 +181,7 @@ void Game2::AddControlPoint(int indx) {
 	SetShapeShader(pickedShape, 2);
 	AddShapeViewport(pickedShape, 1);
 	RemoveShapeViewport(pickedShape, 0);
+	//AddShapeCopy(pickedShape, pickedShape, LINE_LOOP);  // inherits viewport from parent
 }
 
 void Game2::RelocateControlPoint(int segment, int indx) {
@@ -335,7 +336,7 @@ void Game2::WhenRotate()
 	//	planeSize = planeSize * (abs(xOffset) / size);
 	//	pickedShape = -2;
 	//}
-		if (pickedShape == 22 || pickedShape == 23) {
+		if (pickedShape == 23 || pickedShape == 24) {
 			ShapeTransformation(xRotate, x * 1000 - xprev * 1000);
 			ShapeTransformation(yRotate, y * 1000 - yprev * 1000); // multiply by 1000 so the floating point doesnt make it 0
 	}
@@ -410,10 +411,20 @@ void Game2::WhenTranslate()
 		Update3DBezier();
 		pickedShape = -1;
 	}
-	else if (pickedShape == 22 || pickedShape == 23) {
-		ShapeTransformation(xTranslate, x * 10 - xprev * 10);
-		ShapeTransformation(yTranslate, y * 10 - yprev * 10);
+	else if (pickedShape == 23 || pickedShape == 24) {
+			ShapeTransformation(xTranslate, x * 10 - xprev * 10);
+			ShapeTransformation(yTranslate, y * 10 - yprev * 10);
+		
 		//bez2->translateBezier(x * 10 - xprev * 10, y * 10 - yprev * 10);
+	}
+	else {
+		int i = 0;
+		while (i < pickedShapes.size()) {
+			pickedShape = pickedShapes[i];
+			ShapeTransformation(xTranslate, x * 10 - xprev * 10);
+			ShapeTransformation(yTranslate, y * 10 - yprev * 10);
+			i++;
+		}
 	}
 }
 

@@ -132,7 +132,6 @@ Bezier2D::Bezier2D(Bezier1D* c, int _resS, int _resT, int mode, int viewport)
 	resT = _resT;
 	resS = _resS;
 	UpdateBezier(c);
-	pos = glm::vec4(0.1, 0.1, 0.1, 1);
 }
 
 void Bezier2D::UpdateBezier(Bezier1D* c) {
@@ -210,32 +209,24 @@ Bezier2D::~Bezier2D(void)
 
 //void Bezier2D::MyTranslate(const glm::vec3 delta, int mode)
 //{
-//	//trans = glm::translate(trans, glm::vec3(glm::transpose(rot) * glm::vec4(delta, 0)));
 //	trans = glm::translate(trans, delta);
-//	//pos = trans * pos;
+//	pos = trans * pos;
+//	std::cout << "myTranslate: pos.x: " << pos.x << std::endl;
+//}
+
+
+//void Bezier2D::rotateBezier(float xoffset, float yoffset)
+//{
+//	MyRotate(xoffset, glm::vec3(0, 1, 0), 0);
+//	MyRotate(yoffset, glm::vec3(1, 0, 0), 0);
 //}
 //
-//glm::mat4 Bezier2D::MakeTrans()
+//void Bezier2D::translateBezier(float xoffset, float yoffset)
 //{
-//	glm::mat4 transform = scl * rot * trans;
-//	//pos = rot * trans * pos;
-//	return transform;
+//	//pos.x += (xoffset / scaleMovement);
+//	//pos.y += yoffset / scaleMovement;
+//	MyTranslate(glm::vec3(xoffset, yoffset, 0), 0);
 //}
-
-void Bezier2D::rotateBezier(float xoffset, float yoffset)
-{
-	//MyTranslate(glm::vec3(-pos.x, -pos.y, -pos.z), 0);
-	MyRotate(xoffset, glm::vec3(0, 1, 0), 0);
-	MyRotate(yoffset, glm::vec3(1, 0, 0), 0);
-	//MyTranslate(glm::vec3(pos.x, pos.y, pos.z), 0);
-}
-
-void Bezier2D::translateBezier(float xoffset, float yoffset)
-{
-	//pos.x += (xoffset / scaleMovement);
-	//pos.y += yoffset / scaleMovement;
-	MyTranslate(glm::vec3(xoffset, yoffset, 0), 0);
-}
 
 
 
