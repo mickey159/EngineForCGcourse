@@ -23,10 +23,10 @@ public:
 	inline int GetSegmentsNum() const { return controlPoints.size() / 16; } // divide by 16 to get segmentsNum
 	//void MoveControlPoint(int segmentS, int segmentT, int indx, bool preserveC1);
 	~Bezier2D(void);
-	void MyTranslate(const glm::vec3 delta, int mode);
-	glm::mat4 MakeTrans();
+	//void MyTranslate(const glm::vec3 delta, int mode);
+	//glm::mat4 MakeTrans();
 	glm::vec4 pos; // position of the center of the object. starting in (0,0,0)
-	void rotateBezier(float xoffset, float yoffset);
-	void translateBezier(float xoffset, float yoffset);
+	//void rotateBezier(float xoffset, float yoffset);
+	//void translateBezier(float xoffset, float yoffset);
 	
 };

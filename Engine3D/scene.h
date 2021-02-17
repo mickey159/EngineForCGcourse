@@ -12,7 +12,7 @@ class Scene : public MovableGLM
 
 public:
 	enum axis { xAxis, yAxis, zAxis };
-	enum transformations { ZeroTrans, xTranslate, yTranslate, zTranslate, xRotate, yRotate, zRotate, xScale, yScale, zScale, xCameraTranslate, yCameraTranslate, zCameraTranslate };
+	enum transformations { ZeroTrans, xTranslate, yTranslate, zTranslate, xRotate, yRotate, zRotate, xScale, yScale, zScale, scaleAll, xCameraTranslate, yCameraTranslate, zCameraTranslate };
 	enum modes { POINTS, LINES, LINE_LOOP, LINE_STRIP, TRIANGLES, TRIANGLE_STRIP, TRIANGLE_FAN, QUADS };
 	enum shapes { Axis, Plane, Cube, Octahedron, Tethrahedron, Bezier1, Bezier2, LineCopy, MeshCopy };
 	enum buffers { COLOR, DEPTH, STENCIL, BACK, FRONT, NONE };
@@ -50,6 +50,7 @@ public:
 	inline void SetParent(int indx, int newValue) { chainParents[indx] = newValue; }
 
 	void ReadPixel();
+	inline int getPickedShape() { return pickedShape; }
 
 	inline void Activate() { isActive = true; }
 	inline void Deactivate() { isActive = false; }
@@ -63,6 +64,8 @@ public:
 
 	inline void SetShapeMaterial(int shpIndx, int materialIndx) { shapes[shpIndx]->SetMaterial(materialIndx); }
 	inline void SetShapeShader(int shpIndx, int shdrIndx) { shapes[shpIndx]->SetShader(shdrIndx); }
+	void clearPicks();
+	void pickMany(int x, int y, float width, float height);
 	
 
 private:
@@ -78,7 +81,7 @@ protected:
 	std::vector<Material*> materials;
 
 	int pickedShape; 
-
+	std::vector <int> pickedShapes;
 	bool isActive;
 };
 

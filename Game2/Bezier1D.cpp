@@ -20,9 +20,6 @@ float max(float a, float b) {
 float min(float a, float b) {
 	return a < b ? a : b;
 }
-float mapRange(float num, float total, float minR, float maxR) {
-	return num * ((maxR - minR) / total) + minR;
-}
 
 void Bezier1D::MoveControlPoint(int segment, int indx, float dx, float dy, bool preserveC1)
 {

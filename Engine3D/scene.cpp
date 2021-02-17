@@ -3,6 +3,7 @@
 #include "scene.h"
 #include <iostream>
 #include <Game2\Bezier1D.h>
+#include <Game2/Bezier2D.h>
 
 static void printMat(const glm::mat4 mat)
 {
@@ -13,6 +14,10 @@ static void printMat(const glm::mat4 mat)
 			printf("%f ", mat[j][i]);
 		printf("\n");
 	}
+}
+
+float mapRange(float num, float total, float minR, float maxR) {
+	return num * ((maxR - minR) / total) + minR;
 }
 
 Scene::Scene()
@@ -101,7 +106,7 @@ void Scene::ReplaceShape(int shpIndx, Shape* shp)
 
 void Scene::Draw(int shaderIndx, const glm::mat4& View, const glm::mat4& Projection, int viewportIndx, unsigned int flags)
 {
-	glm::mat4 Normal = MakeTrans();
+	glm::mat4 SceneTrans = MakeTrans();
 
 	int p = pickedShape;
 
@@ -109,9 +114,14 @@ void Scene::Draw(int shaderIndx, const glm::mat4& View, const glm::mat4& Project
 	{
 		if (shapes[pickedShape]->Is2Render(viewportIndx))
 		{
-			// as i understand the ps the view, projection and normal should be like this
-			glm::mat4 Model = Normal * shapes[pickedShape]->MakeTrans();
-
+			// as i understand the ps - the view, projection and normal should be like this
+			glm::mat4 Model = shapes[pickedShape]->MakeTrans();
+			int p = chainParents[pickedShape];
+			if (p >= 0) // move the frames with the objects
+				Model = shapes[p]->MakeTrans() * Model;
+			//if (p == -2) // the plane moves with the camera
+			//	Model = glm::inverse(View) * Model;
+			Model = SceneTrans * Model;
 			if (shaderIndx > 0)
 			{
 				Update(View, Projection, Model, shapes[pickedShape]->GetShader());
@@ -121,7 +131,6 @@ void Scene::Draw(int shaderIndx, const glm::mat4& View, const glm::mat4& Project
 			{ //picking - we draw the picking for Renderer::Picking()
 					Update(View, Projection, Model, 0);
 					shapes[pickedShape]->Draw(shaders[0], true);
-				
 			}
 		}
 	}
@@ -161,6 +170,11 @@ void Scene::ShapeTransformation(int type, float amt)
 		case zScale:
 			shapes[pickedShape]->MyScale(glm::vec3(1, 1, amt));
 			break;
+		case scaleAll:
+			shapes[pickedShape]->MyScale(glm::vec3(1, 1, amt));
+			shapes[pickedShape]->MyScale(glm::vec3(1, amt, 1));
+			shapes[pickedShape]->MyScale(glm::vec3(amt, 1, 1));
+			break;
 		case ZeroTrans:
 			shapes[pickedShape]->ZeroTrans();
 			break;
@@ -172,7 +186,6 @@ void Scene::ShapeTransformation(int type, float amt)
 }
 
 
-
 bool Scene::Picking(unsigned char data[4])
 {
 		pickedShape = -1;
@@ -180,41 +193,61 @@ bool Scene::Picking(unsigned char data[4])
 		if (data[0] > 0)
 		{
 			pickedShape = data[0]-1; //r 
-			if (pickedShape != 0) { // avoid cubemap
+			if (pickedShape != 0) { // if we picked the cubemap start drawing the blend
 				return true;
-			}	
-			else {
-				pickedShape = -1;
 			}
+			return false; // false only if we picked the cubemap
 		}
-		return false;
+		return true;
 		//WhenPicked();	
 }
-//return coordinates in global system for a tip of arm position is local system 
+
 void Scene::MouseProccessing(int button, int xrel, int yrel)
 {
-	//if (pickedShape == -1)
-	//{
+
 	if (button == 1)
 	{
-		/*pickedShape = 0;
-		ShapeTransformation(xTranslate, xrel / 80.0f);
-		pickedShape = -1; */
-		//MyTranslate(glm::vec3(-xrel / 80.0f, 0, 0), 0);
-		//MyTranslate(glm::vec3(0, yrel / 80.0f, 0), 0);
 		WhenTranslate();
 	}
 	else
 	{
-		/*pickedShape = 0;
-		ShapeTransformation(yRotate, xrel / 2.0f);
-		pickedShape = -1;*/
-		//MyRotate(-xrel / 2.0f, glm::vec3(0, 1, 0), 0);
-		//MyRotate(-yrel / 2.0f, glm::vec3(1, 0, 0), 1);
 		WhenRotate();
 	}
-	//}
+}
 
+void Scene::clearPicks()
+{
+	pickedShapes.clear();
+}
+
+bool pointInRect(int x, int y, int x1, int y1, int width, int height)
+{
+	return (x > x1 && x < x1 + width &&
+		y > y1 && y < y1 + height);
+}
+
+void Scene::pickMany(int x, int y, float width, float height)
+{
+	for (int i = 23; i < shapes.size(); i++) {
+		glm::vec4 pos = shapes[i]->MakeTrans() * glm::vec4(0.001, 0.001, 0.001, 1);
+		std::cout << "pos.x: " << pos.x << std::endl;
+		std::cout << "pos.y: " << pos.y << std::endl;
+		std::cout << "pos.z: " << pos.z << std::endl;
+		std::cout << "pickMany doing mapRange." << std::endl;
+		std::cout << "mapRange(x + 6) is "<< mapRange(pos.x + 6, 12, 0, 840) << std::endl;
+		std::cout << "mapRange(y + 6) is " << mapRange(pos.y + 6, 12, 0, 840) << std::endl;
+
+
+		if (pointInRect(mapRange(pos.x + 6, 12, 0, 840),
+						mapRange(pos.y + 6, 12, 0, 840),
+						x, y, width, height))
+			pickedShapes.push_back(i);
+	}
+	//print
+	std::cout << "picked shapes:" << std::endl;
+	for (int i = 0; i < pickedShapes.size(); i++) {
+		std::cout << pickedShapes[i] << std::endl;
+	}
 }
 
 void Scene::ZeroShapesTrans()

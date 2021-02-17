@@ -5,15 +5,13 @@
 
 Shape::Shape(const Shape& shape, unsigned int mode)
 {
-
 	mesh = new MeshConstructor(*shape.mesh);
 	//tex = shape.tex;
 	isCopy = true;
 	this->mode = mode;
-	viewports = 1;
+	viewports = shape.viewports;
 	materialID = shape.materialID;
 	shaderID = shape.shaderID;
-
 }
 
 Shape::Shape(const std::string& fileName, unsigned int mode) {
