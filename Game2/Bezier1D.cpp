@@ -24,7 +24,7 @@ float min(float a, float b) {
 void Bezier1D::MoveControlPoint(int segment, int indx, float dx, float dy, bool preserveC1)
 {
 	glm::vec4 cp = segments[segment][indx];
-	segments[segment][indx] = glm::vec4(max(-1, min(cp.x + dx, 1)), min(1, max(cp.y + dy , 0)), 0, 0);
+	segments[segment][indx] = glm::vec4(cp.x + dx, max(cp.y + dy , 0), 0, 0);
 	/*if (!preserveC1)
 		return;
 	if (indx == 1)

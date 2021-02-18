@@ -76,9 +76,9 @@ int nCr(int n, int r)
 //    return co[0] * p0 + co[1] * p1 + co[2] * p2 + co[3] * p3;
 //}
 //
-//glm::vec3 crossProduct(glm::vec4 v1, glm::vec4 v2) {
-//    return glm::vec3(v1.y * v2.z - v1.z * v2.y, -(v1.x * v2.y - v1.z * v2.x), v1.x * v2.y - v1.y * v2.x);
-//}
+glm::vec3 crossProduct(glm::vec3 v1, glm::vec3 v2) {
+    return glm::vec3(v1.y * v2.z - v1.z * v2.y, -(v1.x * v2.y - v1.z * v2.x), v1.x * v2.y - v1.y * v2.x);
+}
 //
 //glm::vec3 Bezier2D::CalcNormal(float s, float t, const std::vector<glm::vec4> subSurf)
 //{
@@ -139,6 +139,10 @@ void Bezier2D::UpdateBezier(Bezier1D* c) {
 	mesh = new MeshConstructor(GetSurface(), true);
 }
 
+glm::vec3 getNormal(glm::vec3 p0, glm::vec3 p1, glm::vec3 p2){
+	return crossProduct(p1 - p0, p2 - p0);
+}
+
 IndexedModel Bezier2D::GetSurface()
 {
 	IndexedModel surface;
@@ -150,11 +154,40 @@ IndexedModel Bezier2D::GetSurface()
 				glm::vec3 pos = rotatePoint(glm::vec3(cp.x, 0, 0), glm::vec3(cp), 2 * PI * col / resT);
 				surface.positions.push_back(pos);
 				surface.colors.push_back(glm::vec3(0, 1, 1));
-				surface.normals.push_back(glm::vec3());
+				surface.normals.push_back(glm::vec3(0));
 				surface.texCoords.push_back(glm::vec2(cp.x, cp.y));
 			}
 		}
+	}
 
+	for (int seg = 0; seg < bez1->GetSegmentsNum() - 1; seg++) {
+		for (int row = 0; row < resS + 1; row++) { // x
+			int i = seg * resS * resT + row * resT;
+			surface.normals[i] = getNormal(
+				surface.positions[i + resT - 1],
+				surface.positions[i],
+				surface.positions[i + resT]);
+			for (int col = 1; col < resT; col++) { // y
+				surface.normals[i + col] = getNormal(
+					surface.positions[i + col - 1],
+					surface.positions[i + col],
+					surface.positions[i + resT + col]);
+			}
+		}
+	}
+	
+	for (int row = 0; row < resS; row++) { // x
+		int i = (bez1->GetSegmentsNum() - 1) * resS * resT + row * resT;
+		surface.normals[i] = getNormal(
+			surface.positions[i + resT - 1],
+			surface.positions[i],
+			surface.positions[i + resT]);
+		for (int col = 1; col < resT; col++) { // y
+			surface.normals[i + col] = getNormal(
+				surface.positions[i + col - 1],
+				surface.positions[i + col],
+				surface.positions[i + resT + col]);
+		}
 	}
 
 	for (int seg = 0; seg < bez1->GetSegmentsNum(); seg++) {

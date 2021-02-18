@@ -22,20 +22,26 @@ void mouse_callback(GLFWwindow* window, int button, int action, int mods)
 		rndr->updatePress(xpos, ypos);
 		if (!rndr->Picking((int)xpos, (int)ypos)) {
 			rndr->ClearDrawFlag(4, rndr->inAction2); // clear the flag so DrawAll draws the blend
-			rndr->SetDrawFlag(4, rndr->stencil2);
-			rndr->SetDrawFlag(4, rndr->passStencil);
+			//rndr->SetDrawFlag(4, rndr->stencil2);
+			//rndr->SetDrawFlag(4, rndr->passStencil);
+		}
+		else {
+			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+				rndr->MouseProccessing(GLFW_MOUSE_BUTTON_LEFT);
+			}
+			if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
+				rndr->MouseProccessing(GLFW_MOUSE_BUTTON_RIGHT);
+			}
 		}
 		scn->clearPicks();
 	}
 	if (action == GLFW_RELEASE) {
-		if(rndr->pickMany()){
-			rndr->SetDrawFlag(4, rndr->inAction2);
-			scn->scalePicked();
-		}
-		else {
+		rndr->pickMany();
+		rndr->SetDrawFlag(4, rndr->inAction2);
+		/*else {
 			rndr->SetDrawFlag(4, rndr->scaleAbit);
 			rndr->ClearDrawFlag(4, rndr->passStencil);
-		}
+		}*/
 
 		scn->SetCounter();
 	}
@@ -94,10 +100,10 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 			break;
 
 		case GLFW_KEY_DOWN:
-			rndr->MoveCamera(0, scn->zTranslate, 0.4f);
+			rndr->MoveCamera(0, scn->zTranslate, -0.4f);
 			break;
 		case GLFW_KEY_UP:
-			rndr->MoveCamera(0, scn->zTranslate, -0.4f);
+			rndr->MoveCamera(0, scn->zTranslate, 0.4f);
 			break;
 		case GLFW_KEY_LEFT:
 			rndr->MoveCamera(0, scn->xRotate, 0.4f);
@@ -106,14 +112,10 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 			rndr->MoveCamera(0, scn->xRotate, -0.4f);
 			break;
 		case GLFW_KEY_L:
-			rndr->MoveCamera(0, scn->zRotate, 90.0f);
-			//rndr->MoveCamera(0, scn->yRotate, 0.4f);
-			//rndr->MoveCamera(0, scn->yRotate, -90.0f);
+			rndr->MoveCamera(0, scn->zRotate, 0.4f);
 			break;
 		case GLFW_KEY_R:
-			//rndr->MoveCamera(0, scn->yRotate, 90.0f);
-			//rndr->MoveCamera(0, scn->yRotate, -0.4f);
-			rndr->MoveCamera(0, scn->zRotate, -90.0f);
+			rndr->MoveCamera(0, scn->zRotate, -0.4f);
 			break;
 		case GLFW_KEY_U:
 			rndr->MoveCamera(0, scn->xTranslate, 0.4f);

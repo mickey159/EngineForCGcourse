@@ -202,16 +202,16 @@ bool Scene::Picking(unsigned char data[4])
 		//WhenPicked();	
 }
 
-void Scene::MouseProccessing(int button, int xrel, int yrel)
+void Scene::MouseProccessing(glm::mat4 View, int button, int xrel, int yrel)
 {
 
 	if (button == 1)
 	{
-		WhenTranslate();
+		WhenTranslate(View);
 	}
 	else
 	{
-		WhenRotate();
+		WhenRotate(View);
 	}
 }
 
@@ -255,7 +255,7 @@ bool Scene::pickMany(int x, int y, float width, float height, glm::mat4 view)
 
 void Scene::scalePicked(){
 	if (pickedShapes.size() > 0) {
-		for (int i = 1; i < pickedShapes.size(); i+=2) {
+		for (int i = 0; i < pickedShapes.size(); i++) {
 			pickedShape = pickedShapes[i];
 			ShapeTransformation(xScale, 1.1);
 			ShapeTransformation(yScale, 1.1);

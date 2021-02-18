@@ -17,8 +17,8 @@ public:
 	void HideControlPoint(int indx);
 	void Update(const glm::mat4& View, const glm::mat4& Projection, const glm::mat4 &Model,const int  shaderIndx);
 	
-	void WhenRotate();
-	void WhenTranslate();
+	void WhenRotate(glm::mat4 View);
+	void WhenTranslate(glm::mat4 View);
 	void Motion();
 	
 	void onScroll(int yoffset, bool isPressed); // added a function to move the shape when scrolling
@@ -33,6 +33,7 @@ public:
 	void RemakeBezier(int segNum);
 	void FixControlPoints();
 	void ContinuityStateToggle();
+	void MoveFixToView(glm::mat4 View, glm::vec4 move, bool isTransform);
 	void movePlane(double x, double y);
 private:
 	unsigned int counter;

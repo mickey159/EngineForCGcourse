@@ -93,7 +93,7 @@ void Renderer::Draw(int infoIndx)
 		glDisable(GL_SCISSOR_TEST);
 
 	if (info.flags & scaleAbit) {
-		//scn->scalePicked();
+		scn->scalePicked();
 	}
 
 	if (info.flags & stencilTest) {
@@ -120,7 +120,7 @@ void Renderer::Draw(int infoIndx)
 	if (info.flags & scaleAbit) {
 		(*drawInfo[infoIndx]).flags &= ~scaleAbit;
 		(*drawInfo[infoIndx]).flags &= ~stencil2;
-		//scn->unscalePicked();
+		scn->unscalePicked();
 	}
 
 	if (info.flags & depthTest)
@@ -176,7 +176,8 @@ bool Renderer::Picking(int x, int y)
 
 void Renderer::MouseProccessing(int button)
 {
-	scn->MouseProccessing(button, xrel, yrel);
+	glm::mat4 View = glm::inverse(cameras[0]->MakeTrans());
+	scn->MouseProccessing(View, button, xrel, yrel);
 }
 
 void Renderer::AddCamera(const glm::vec3& pos, float fov, float relationWH, float zNear, float zFar, int infoIndx)

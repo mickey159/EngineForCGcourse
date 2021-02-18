@@ -169,8 +169,7 @@ float getAngle(glm::vec4 center, glm::vec4 point, float xOffset, float yOffset) 
 	return atan2(det, dot);
 }
 
-glm::vec4 rotatePoint(glm::vec4 center, glm::vec4 point, float xOffset, float yOffset) {
-	float angle = getAngle(center, point, xOffset, yOffset);
+glm::vec4 rotatePoint(glm::vec4 center, glm::vec4 point, float angle) {
 	point -= center;
 	float s = sin(angle);
 	float c = cos(angle);
@@ -185,22 +184,27 @@ void Game2::Add3DBezier() {
 	AddShape(bezbez, -1);
 	
 	pickedShape = pointsStartIndx + 20 + numOfBeziers;
-	SetShapeShader(pickedShape, 4);
-
-	AddShapeCopy(pickedShape, pickedShape, -1);
 	SetShapeShader(pickedShape, 2);
+
+	/*AddShapeCopy(pickedShape, pickedShape, LINE_LOOP);
+	pickedShape++;
+	SetShapeShader(pickedShape, 4);
+	ShapeTransformation(xScale, 1.1);
+	ShapeTransformation(yScale, 1.1);
+	ShapeTransformation(zScale, 1.1);
+	ShapeTransformation(zTranslate, -0.2);*/
 	//AddShapeViewport(pickedShape + 1, 2);
 	//RemoveShapeViewport(pickedShape + 1, 0);
-	numOfBeziers+= 2;
+	numOfBeziers+= 1;
 
 	pickedShape = -1;
 }
 
 void Game2::Update3DBezier() {
-	for (int i = 0; i < numOfBeziers; i++) {
+	/*for (int i = 0; i < numOfBeziers; i++) {
 		pickedShape = pointsStartIndx + 20 + i;
 		((Bezier2D*)shapes[pickedShape])->UpdateBezier(bez);
-	}
+	}*/
 	pickedShape = -1;
 }
 
@@ -239,14 +243,27 @@ void Game2::ContinuityStateToggle() {
 	std::cout << "is continuityState ? " << (isContinuityState ? "true" : "false") << std::endl;
 }
 
-void Game2::WhenRotate()
+void Game2::MoveFixToView(glm::mat4 View, glm::vec4 move, bool isTransform) {
+	move = glm::inverse(View) * move;
+	if (isTransform) {
+		ShapeTransformation(xTranslate, move.x);
+		ShapeTransformation(yTranslate, move.y);
+		ShapeTransformation(zTranslate, move.z);
+	}
+	else {
+		ShapeTransformation(yRotate, move.x);
+		ShapeTransformation(xRotate, move.y);
+		ShapeTransformation(zRotate, move.z);
+	}
+}
+
+void Game2::WhenRotate(glm::mat4 View)
 {
 	float rotScale3d = 1000;
 	if (pickedShapes.size() != 0) { //2D-BEZ, multi pick
 		for (int i = 0; i < pickedShapes.size(); i++) {
 			pickedShape = pickedShapes[i];
-			ShapeTransformation(xRotate, (x - xprev) * rotScale3d);
-			ShapeTransformation(yRotate, (x - xprev) * rotScale3d);
+			MoveFixToView(View, glm::vec4((x - xprev) * rotScale3d, (y - yprev) * rotScale3d, 0, 0), false);
 		}
 	}
 	if (pickedShape < pointsStartIndx) {
@@ -265,29 +282,51 @@ void Game2::WhenRotate()
 		if (pointIndx != 0) { //pressed p1 or p2
 			glm::vec4 center = bez->GetControlPoint(pointSeg, pointIndx == 1 ? 0 : 3);
 			glm::vec4 point = bez->GetControlPoint(pointSeg, pointIndx);
-			glm::vec4 nextLoc = rotatePoint(center, point, (x - xprev), (y - yprev));
+			float angle = getAngle(center, point, (x - xprev), (y - yprev));
+			glm::vec4 nextLoc = rotatePoint(center, point, angle);
 			float xOffset = nextLoc.x - point.x;
 			float yOffset = nextLoc.y - point.y;
-			bez->CurveUpdate(currPoint, xOffset, yOffset, isContinuityState);
-			MoveControlPoint(currPoint, xOffset, yOffset);
+			bez->CurveUpdate(currPoint, xOffset, yOffset, false);
+			RelocateControlPoint(pointSeg, pointIndx);
+			if (isContinuityState) {
+				if (currPoint % 3 == 1) {//p1 moves p-2
+					if (pointSeg != 0) {
+						point = bez->GetControlPoint(pointSeg - 1, 2);
+						nextLoc = rotatePoint(center, point, angle);
+						xOffset = nextLoc.x - point.x;
+						yOffset = nextLoc.y - point.y;
+						bez->CurveUpdate(currPoint - 2, xOffset, yOffset, false);
+						RelocateControlPoint(pointSeg - 1, 2);
+					}
+				}
+				else {//p2 moves p+1
+					if (pointSeg != bez->GetSegmentsNum()) {
+						point = bez->GetControlPoint(pointSeg + 1, 1);
+						nextLoc = rotatePoint(center, point, angle);
+						xOffset = nextLoc.x - point.x;
+						yOffset = nextLoc.y - point.y;
+						bez->CurveUpdate(currPoint + 2, xOffset, yOffset, false);
+						RelocateControlPoint(pointSeg + 1, 1);
+					}
+				}
+			}
 		}
 		else if (pointSeg != bez->GetSegmentsNum() && pointSeg != 0) { //option b
 			glm::vec4 line = getLine(bez->GetControlPoint(pointSeg, 0), bez->GetControlPoint(pointSeg, 1));
 			glm::vec4 p2 = bez->GetControlPoint(pointSeg - 1, 2);
 			float yOffset = line[0] * p2.x + line[1] - p2.y;
 			bez->CurveUpdate(currPoint - 1, 0, yOffset, false);
-			MoveControlPoint(currPoint - 1, 0, yOffset);
+			RelocateControlPoint(pointSeg - 1, 2);
 		}
 		Update3DBezier();
 		pickedShape = currPoint + pointsStartIndx;
 	}
 	else { // plane cannot be picked so there is not need to check??
-		ShapeTransformation(xRotate, (x - xprev) * rotScale3d);
-		ShapeTransformation(yRotate, (y - yprev) * rotScale3d);
+		MoveFixToView(View, glm::vec4((x - xprev) * rotScale3d, (y - yprev) * rotScale3d, 0, 0), false);
 	}
 }
 
-void Game2::WhenTranslate()
+void Game2::WhenTranslate(glm::mat4 View)
 {
 	float transScale3d = 10;
 	float xOffset = (x - xprev);
@@ -297,12 +336,11 @@ void Game2::WhenTranslate()
 	if (pickedShapes.size() != 0) { //2D-BEZ, multi pick
 		for (int i = 0; i < pickedShapes.size(); i++) {
 			pickedShape = pickedShapes[i];
-			ShapeTransformation(xTranslate, xOffset * transScale3d);
-			ShapeTransformation(yTranslate, yOffset * transScale3d);
+			MoveFixToView(View, glm::vec4(xOffset * transScale3d, yOffset * transScale3d, 0, 0), true);
 		}
 	}
 	else if (pickedShape < pointsStartIndx) {
-		if (x > 1) { // 1D-BEZ, e - convex hull
+		if (x > 1) { // 1D-BEZ, d - convex hull
 			int segment = bez->GetSectionIsMouseInConvexHull(2 * (x - 1.5) / curveScale, (2 * y - 1) / curveScale);
 			if (segment == -1)
 				return;
@@ -326,34 +364,45 @@ void Game2::WhenTranslate()
 	}
 	else if (pickedShape < pointsStartIndx + 19) { // max 18 control points, 1D-BEZ
 		int currPoint = pickedShape - pointsStartIndx;
-		bez->CurveUpdate(currPoint, xOffset, yOffset, false);
-		MoveControlPoint(currPoint, xOffset, yOffset);
-
-		if (currPoint % 3 == 0) {
-			if (currPoint != bez->GetSegmentsNum() * 3) { //lastPoint
+		int pointSeg = currPoint / 3;
+		int pointIndx = currPoint % 3;
+		if (pointIndx == 0) {
+			bez->CurveUpdate(currPoint, xOffset, yOffset, false);
+			if (pointSeg != bez->GetSegmentsNum()) { //lastPoint
 				bez->CurveUpdate(currPoint + 1, xOffset, yOffset, false);
-				MoveControlPoint(currPoint + 1, xOffset, yOffset);
-
+				RelocateControlPoint((currPoint + 1) / 3, (currPoint + 1) % 3);
+			}
+			else {
+				pointSeg -= 1;
+				pointIndx = 3;
 			}
 			if (currPoint != 0) { //firstPoint
 				bez->CurveUpdate(currPoint - 1, xOffset, yOffset, false);
-				MoveControlPoint(currPoint - 1, xOffset, yOffset);
+				RelocateControlPoint((currPoint - 1) / 3, (currPoint - 1) % 3);
 			}
 		}
 		else if (isContinuityState) {
+			glm::vec4 p = bez->GetControlPoint(pointSeg, currPoint % 3);
+			glm::vec4 line;
 			if (currPoint % 3 == 1) {//p1 moves tg with p0
-				MoveControlPoint(currPoint - 1, xOffset, yOffset);
+				line = getLine(bez->GetControlPoint(pointSeg, 0), bez->GetControlPoint(pointSeg, 1));
 			}
 			else {//p2 moves tg with p3
-				MoveControlPoint(currPoint + 1, xOffset, yOffset);
+				line = getLine(bez->GetControlPoint(pointSeg, 2), bez->GetControlPoint(pointSeg, 3));
 			}
+			//yOffset = p2.y - p1.y = lineY - p1.y
+			yOffset = line[0] * (p.x + xOffset) + line[1] - p.y;
+			bez->CurveUpdate(currPoint, xOffset, yOffset, false);
 		}
+		else {
+			bez->CurveUpdate(currPoint, xOffset, yOffset, false);
+		}
+		RelocateControlPoint(pointSeg, pointIndx);
 		Update3DBezier();
 		pickedShape = currPoint + pointsStartIndx;
 	}
 	else { // plane cannot be picked so there is not need to check??
-		ShapeTransformation(xTranslate, xOffset * transScale3d);
-		ShapeTransformation(yTranslate, yOffset * transScale3d);
+		MoveFixToView(View, glm::vec4(xOffset * transScale3d, yOffset * transScale3d, 0, 0), true);
 	}
 }
 
@@ -384,9 +433,7 @@ void Game2::Update(const glm::mat4& View, const glm::mat4& Projection, const glm
 	else
 		s->SetUniform4f("lightColor", r / 255.0, g / 255.0, b / 255.0, 0);
 	s->SetUniform4f("eyePosition", -3, 0, 4, 0); // for the light
-	s->SetUniform1ui("counter", counter);
 	s->SetUniform1f("x", x);
-	s->SetUniform1f("y", y);
 	s->Unbind();
 }
 

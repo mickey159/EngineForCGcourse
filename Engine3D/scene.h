@@ -34,8 +34,8 @@ public:
 	void ZeroShapesTrans();
 
 	virtual void Update(const glm::mat4& View, const glm::mat4& Projection, const glm::mat4& Normal, const int  shaderIndx) = 0;
-	virtual void WhenTranslate() {};
-	virtual void WhenRotate() {};
+	virtual void WhenTranslate(glm::mat4 View) {};
+	virtual void WhenRotate(glm::mat4 View) {};
 	virtual void WhenPicked() {};
 	virtual void Motion() {};
 	virtual void Reset() {};
@@ -58,7 +58,7 @@ public:
 	void BindMaterial(Shader* s, unsigned int materialIndx);
 	void BindTexture(int texIndx, int slot) { textures[texIndx]->Bind(slot); }
 
-	void MouseProccessing(int button, int xrel, int yrel);
+	void MouseProccessing(glm::mat4 View, int button, int xrel, int yrel);
 	bool inline IsActive() const { return isActive; }
 
 	inline void SetShapeMaterial(int shpIndx, int materialIndx) { shapes[shpIndx]->SetMaterial(materialIndx); }
