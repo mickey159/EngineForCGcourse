@@ -21,7 +21,7 @@ public:
 	void WhenTranslate();
 	void Motion();
 	
-	void scrollShape(int yoffset); // added a function to move the shape when scrolling
+	void onScroll(int yoffset, bool isPressed); // added a function to move the shape when scrolling
 
 	unsigned int TextureDesine(int width, int height);
 	~Game2(void);
@@ -42,6 +42,7 @@ private:
 	bool isContinuityState;
 	int pointsStartIndx;
 	int pps;
+	int numOfBeziers;
 	float pointsScale;
 	float curveScale;
 	Bezier1D* bez;

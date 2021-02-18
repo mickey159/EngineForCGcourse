@@ -57,7 +57,7 @@ void Renderer::Init(Scene* scene,  std::list<int>xViewport,  std::list<int>yView
 					// the inAction flag is used for picking. rndr->Picking() does ActionDraw()
 					drawInfo.push_back(new DrawInfo(index, 0, 0, 0, index < 1 | inAction | depthTest | blackClear ));
 					// drawing drawinfo
-					drawInfo.push_back(new DrawInfo(index, 0, 1, 0, index < 1 | scaleAbit| depthTest 
+					drawInfo.push_back(new DrawInfo(index, 0, 1, 0, index < 1 | depthTest 
 						| sceneTrans | stencilTest | passStencil | clearStencil));
 					// blending drawinfo
 					//drawInfo.push_back(new DrawInfo(index, 0, 2, 0, index < 1 | blend | stencilTest | passStencil));
@@ -93,12 +93,7 @@ void Renderer::Draw(int infoIndx)
 		glDisable(GL_SCISSOR_TEST);
 
 	if (info.flags & scaleAbit) {
-		if (scn->getPickedShape() > 0) {
-			scn->ShapeTransformation(xScale, 1.1);
-			scn->ShapeTransformation(yScale, 1.1);
-			scn->ShapeTransformation(zScale, 1.1);
-			(*drawInfo[infoIndx]).flags &= ~scaleAbit;
-		}
+		//scn->scalePicked();
 	}
 
 	if (info.flags & stencilTest) {
@@ -121,6 +116,12 @@ void Renderer::Draw(int infoIndx)
 
 	else
 		glDisable(GL_STENCIL_TEST);
+
+	if (info.flags & scaleAbit) {
+		(*drawInfo[infoIndx]).flags &= ~scaleAbit;
+		(*drawInfo[infoIndx]).flags &= ~stencil2;
+		//scn->unscalePicked();
+	}
 
 	if (info.flags & depthTest)
 		glEnable(GL_DEPTH_TEST);
@@ -320,11 +321,12 @@ Renderer::~Renderer()
 	
 }
 
-void Renderer::pickMany()
+bool Renderer::pickMany()
 {
 	int x = glm::min(xWhenPress, xold);
 	int y = glm::min(viewports[2].w - yWhenPress, viewports[2].w - yold);
-	scn->pickMany(x, y, glm::abs(xWhenPress - xold), glm::abs(yWhenPress - yold));
+	glm::mat4 view = glm::inverse(cameras[0]->MakeTrans());
+	return scn->pickMany(x, y, glm::abs(xWhenPress - xold), glm::abs(yWhenPress - yold), view);
 }
 
 void Renderer::Clear(float r, float g, float b, float a)

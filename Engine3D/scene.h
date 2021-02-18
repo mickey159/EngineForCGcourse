@@ -50,7 +50,6 @@ public:
 	inline void SetParent(int indx, int newValue) { chainParents[indx] = newValue; }
 
 	void ReadPixel();
-	inline int getPickedShape() { return pickedShape; }
 
 	inline void Activate() { isActive = true; }
 	inline void Deactivate() { isActive = false; }
@@ -64,13 +63,14 @@ public:
 
 	inline void SetShapeMaterial(int shpIndx, int materialIndx) { shapes[shpIndx]->SetMaterial(materialIndx); }
 	inline void SetShapeShader(int shpIndx, int shdrIndx) { shapes[shpIndx]->SetShader(shdrIndx); }
+
+	bool pickMany(int x, int y, float width, float height, glm::mat4 view); 
 	void clearPicks();
-	void pickMany(int x, int y, float width, float height);
+	void scalePicked();
+	void unscalePicked();
 	
 
 private:
-
-
 	float depth;
 
 protected:

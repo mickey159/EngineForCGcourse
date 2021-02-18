@@ -189,7 +189,7 @@ void Scene::ShapeTransformation(int type, float amt)
 bool Scene::Picking(unsigned char data[4])
 {
 		pickedShape = -1;
-		std::cout << data[0] - 1 << std::endl;
+		std::cout << "now picked:" << data[0] - 1 << std::endl;
 		if (data[0] > 0)
 		{
 			pickedShape = data[0]-1; //r 
@@ -217,7 +217,8 @@ void Scene::MouseProccessing(int button, int xrel, int yrel)
 
 void Scene::clearPicks()
 {
-	pickedShapes.clear();
+	if(std::find(pickedShapes.begin(), pickedShapes.end(), pickedShape) == pickedShapes.end())
+		pickedShapes.clear();
 }
 
 bool pointInRect(int x, int y, int x1, int y1, int width, int height)
@@ -226,27 +227,56 @@ bool pointInRect(int x, int y, int x1, int y1, int width, int height)
 		y > y1 && y < y1 + height);
 }
 
-void Scene::pickMany(int x, int y, float width, float height)
+bool Scene::pickMany(int x, int y, float width, float height, glm::mat4 view)
 {
+	if (pickedShapes.size() > 0 &&
+		std::find(pickedShapes.begin(), pickedShapes.end(), pickedShape) != pickedShapes.end())
+		return true;
+	pickedShapes.clear();
 	for (int i = 23; i < shapes.size(); i++) {
-		glm::vec4 pos = shapes[i]->MakeTrans() * glm::vec4(0.001, 0.001, 0.001, 1);
-		std::cout << "pos.x: " << pos.x << std::endl;
-		std::cout << "pos.y: " << pos.y << std::endl;
-		std::cout << "pos.z: " << pos.z << std::endl;
-		std::cout << "pickMany doing mapRange." << std::endl;
-		std::cout << "mapRange(x + 6) is "<< mapRange(pos.x + 6, 12, 0, 840) << std::endl;
-		std::cout << "mapRange(y + 6) is " << mapRange(pos.y + 6, 12, 0, 840) << std::endl;
-
-
+		glm::vec4 pos = view * shapes[i]->MakeTrans() * glm::vec4(0.001, 0.001, 0.001, 1);
+		
 		if (pointInRect(mapRange(pos.x + 6, 12, 0, 840),
 						mapRange(pos.y + 6, 12, 0, 840),
 						x, y, width, height))
 			pickedShapes.push_back(i);
 	}
 	//print
-	std::cout << "picked shapes:" << std::endl;
-	for (int i = 0; i < pickedShapes.size(); i++) {
-		std::cout << pickedShapes[i] << std::endl;
+	if (pickedShapes.size() > 0) {
+		std::cout << "picked shapes:";
+		for (int i = 0; i < pickedShapes.size(); i++) {
+			std::cout << pickedShapes[i] << ", ";
+		}
+		std::cout << std::endl;
+		return true;
+	}
+	return false;
+}
+
+void Scene::scalePicked(){
+	if (pickedShapes.size() > 0) {
+		for (int i = 1; i < pickedShapes.size(); i+=2) {
+			pickedShape = pickedShapes[i];
+			ShapeTransformation(xScale, 1.1);
+			ShapeTransformation(yScale, 1.1);
+		}
+	}
+	else if (pickedShape != -1) {
+		ShapeTransformation(xScale, 1.1);
+		ShapeTransformation(yScale, 1.1);
+	}
+}
+void Scene::unscalePicked() {
+	if (pickedShapes.size() > 0) {
+		for (int i = 0; i < pickedShapes.size(); i++) {
+			pickedShape = pickedShapes[i];
+			ShapeTransformation(xScale, 0.9);
+			ShapeTransformation(yScale, 0.9);
+		}
+	}
+	else if (pickedShape != -1) {
+		ShapeTransformation(xScale, 0.9);
+		ShapeTransformation(yScale, 0.9);
 	}
 }
 

@@ -75,7 +75,7 @@ public:
 	inline void ClearDrawFlag(int infoIndx, unsigned int flag) { drawInfo[infoIndx]->ClearFlags(flag); }
 	bool checkViewport(int x, int y, int viewportIndx);
 	~Renderer();
-	void pickMany();
+	bool pickMany();
 private:
 	std::vector<Camera*> cameras;
 	Scene* scn;

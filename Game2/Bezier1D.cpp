@@ -25,12 +25,12 @@ void Bezier1D::MoveControlPoint(int segment, int indx, float dx, float dy, bool 
 {
 	glm::vec4 cp = segments[segment][indx];
 	segments[segment][indx] = glm::vec4(max(-1, min(cp.x + dx, 1)), min(1, max(cp.y + dy , 0)), 0, 0);
-	if (!preserveC1)
+	/*if (!preserveC1)
 		return;
 	if (indx == 1)
 		CurveUpdate(segment * 3, dx, dy, false);
 	else if (indx == 2) 
-		CurveUpdate((segment + 1) * 3, dx, dy, false);
+		CurveUpdate((segment + 1) * 3, dx, dy, false);*/
 }
 
 Bezier1D::Bezier1D(int segNum, int res, int mode, int viewport)
@@ -130,7 +130,17 @@ void Bezier1D::CurveUpdate(int pointIndx, float dx, float dy, bool preserveC1)
 		MoveControlPoint(seg, pointIndx - seg * 3, dx, dy, preserveC1);
 	}
 	mesh = new MeshConstructor(GetLine(), false);
-	//mesh->ChangeLine
+}
+
+float pCross(glm::vec4 p1, glm::vec4 p2) { return p1.x * p2.y - p1.y * p2.x; }
+float area(glm::vec4 p1, glm::vec4 p2, glm::vec4 p3)
+{
+	return abs(pCross(p2 - p1, p3 - p1));
+}
+bool isInConvexHull(glm::vec4 p, glm::vec4 a, glm::vec4 b, glm::vec4 c) {
+	float s1 = area(a, b, c);
+	float s2 = area(p, a, b) + area(p, b, c) + area(p, c, a);
+	return abs(s1 - s2) < 1e-8;
 }
 
 int Bezier1D::GetSectionIsMouseInConvexHull(float x, float y) {
@@ -141,10 +151,15 @@ int Bezier1D::GetSectionIsMouseInConvexHull(float x, float y) {
 			break;
 		}
 	}
-	float t = (x - segments[segment][0].x) / (segments[segment][3].x - segments[segment][0].x);
-	glm::vec4 p = segments[segment] * M * glm::vec4(1, t, t * t, t * t * t);
-	if(p.y + convecHullUnit >= y && y >= p.y - convecHullUnit)
+	glm::vec4 p = glm::vec4(x, y, 0, 0);
+	if (isInConvexHull(p, segments[segment][0], segments[segment][1], segments[segment][3]) ||
+		isInConvexHull(p, segments[segment][0], segments[segment][2], segments[segment][3]) ||
+		isInConvexHull(p, segments[segment][1], segments[segment][2], segments[segment][3]))
 		return segment;
+	//float t = (x - segments[segment][0].x) / (segments[segment][3].x - segments[segment][0].x);
+	//glm::vec4 p = segments[segment] * M * glm::vec4(1, t, t * t, t * t * t);
+	//if(p.y + convecHullUnit >= y && y >= p.y - convecHullUnit)
+		//return segment;
 	return -1;
 }
 Bezier1D::~Bezier1D(void)
